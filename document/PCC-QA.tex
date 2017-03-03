@@ -20,11 +20,11 @@
 \usepackage[table,xcdraw]{xcolor}
 \usepackage{pgfgantt}
 \hypersetup{ 					% ‘texdoc hyperref‘ for options
-	pdftitle={PSE PCC: Implementierung},
+	pdftitle={PSE PCC: Testphasendokument},
 	pdfauthor={Giorgio Groß, Christoph Hörtnagl, David Laubenstein, Josh Romanowski, Fabian Wenzel},
 	bookmarks=true,
 }
-\title{Implementierung: Privacy Crash- Cam}
+\title{Testen/Wartung: Privacy Crash- Cam}
 
 %Paket laden
 \usepackage[
@@ -58,7 +58,7 @@ section]      %im Inhaltsverzeichnis auf section-Ebene erscheinen
  \fancyhf{} %alle Kopf- und Fußzeilenfelder bereinigen 
  
  \fancypagestyle{plain}{} %Kopf- und Fußzeile auf jeder Seite	 
-	\fancyhead[L]{Implementierung}
+	\fancyhead[L]{Testdokument}
 	\fancyhead[R]{\leftmark}
 	\rhead{\nouppercase{\leftmark}}
 	\renewcommand{\headrulewidth}{0.5pt}
@@ -76,18 +76,22 @@ section]      %im Inhaltsverzeichnis auf section-Ebene erscheinen
 \setcounter{tocdepth}{5}
 \makeglossaries
 \begin{document}
-\include{./subtopicsImp/Deckblatt}
+\include{./subtopicsQA/Deckblatt}
 % \maketitle
 \tableofcontents
 
 %content
-\include{./subtopicsImp/Einleitung}
+\include{./subtopicsQA/Einleitung}
 \newpage
-\include{./subtopicsImp/AenderungenCode}
+\input{./subtopicsQA/CT}
 \newpage
-\include{./subtopicsImp/AenderungenProjekt}
+\input{./subtopicsQA/IT}
 \newpage
-\include{./subtopicsImp/Implementierungsplan}
+\input{./subtopicsQA/PT}
+\newpage
+\input{./subtopicsQA/ST}
+\newpage
+\input{./subtopicsQA/VT}
 \newpage
 
 %end content
