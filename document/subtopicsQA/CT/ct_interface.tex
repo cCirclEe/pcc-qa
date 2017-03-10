@@ -1,1 +1,47 @@
+\subsubsection{Einleitung}
 
+Für das Webinterface wurden einerseits automatisierte Unit Tests erstellt, die hauptsächlich Funktionen der Datenmanager Klassen testen. Diese Tests garantieren die fehlerfreie Weitergabe und Verarbeitung von Daten. Zudem wurde anhand des Pflichtenheftes die Weboberfläche manuell getestet. Zum durchführen der folgenden Testfälle wurde das Web-Interface auf dem localhost gestartet. Als Test Daten wurden eine existierende Mail Adresse sowie wie 2 Test Videos verwendet.
+
+\subsubsection{Testfälle}
+
+\begin{longtable}{p{.50\textwidth} | p{.50\textwidth}}
+\textbf{Aktion} & \textbf{Reaktion}\\
+\hline
+Die Seite wird im Browser geöffnet & Es öffnet sich die Login Ansicht\\
+\hline
+Drücken des Login Buttons ohne/mit ungültiger Eingabe & Ein Popup zeigt einen Fehler an\\
+\hline
+Drücken des Registrieren Buttons ohne/mit ungültiger Eingabe& Ein Popup zeigt einen Fehler an\\
+\hline
+Drücken den Registrieren Buttons mit korrekter Eingabe & Ein Popup informiert, den erstellten Account zu verifizieren mittels der gesendeten Mail\\
+\hline  
+Drücken des Login Buttons ohne klicken des Links in der Mail & Ein Popup zeigt einen Fehler an\\
+\hline  
+Drücken des Links in der Mail & Eine Seite im Browser teilt erfolgreiche Verifizierung mit\\
+\hline
+Drücken des Login Buttons nach verifizieren des Accounts & Der Benutzer wird angemeldet und die Video Ansicht wird angezeigt\\
+\hline
+Drücken des Download Buttons & Es wird ein Dialog geöffnet zum Downloaden der Datei, nach bestätigen wird die Datei heruntergeladen\\
+\hline
+Drücken des Info Buttons & Es wird ein Popup geöffnet welches die Meta Informationen anzeigt\\
+\hline
+Drücken des Delete Buttons & Ein Popup zeigt an, dass das Video gelöscht wurde\\
+\hline
+Drücken des Datenschutz Menüeintrags & Die Datenschutz Informationen werden angezeigt\\
+\hline
+Drücken des Impressum Menüeintrags & Das PCC Impressum wird angezeigt\\
+\hline
+Drücken des Account Ansicht Menüeintrags & Die Account Ansicht wird angezeigt\\
+\hline
+Drücken des ändern Buttons ohne Eingabe & Ein Popup zeigt einen Fehler an\\
+\hline
+Drücken des ändern Buttons mit falschen Eingaben & Ein Popup zeigt einen Fehler\\
+\hline
+Drücken des ändern Buttons mit korrekten Eingaben & Ein Popup bestätigt die Änderung und anschließend wird die Login Ansicht angezeigt\\
+\hline
+Drücken des löschen Buttons & Ein Popup bestätigt, dass der Account gelöscht wurde und die Login Ansicht wird angezeigt\\
+\hline
+Drücken des Logout Menüeintrags & Die Login Ansicht wird angezeigt\\
+\hline
+
+ \end{longtable}
