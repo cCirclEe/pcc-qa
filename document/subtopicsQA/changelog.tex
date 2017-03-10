@@ -1,2 +1,10 @@
-\chapter{Changelog} \label{Changelog}
-asdf
+\chapter{Änderungen} \label{Changelog}
+Sein Softwareprodukt umfassend zu testen und anhand genau festgelegter Kriterien zu bewerten ist ein guter Vorsatz. Wenn man die gewonnen Informationen nicht zum Anlass nimmt, sein Programm zu ändern und zu verbessern, ist die Arbeit jedoch wertlos. Deshalb hier eine Liste an Änderungen die durch den Testprozess angestoßen wurden.
+
+\begin{itemize}
+\item[\textbf{Laden von Ressourcen im Web-Dienst}] Damit auch aus dem gebauten Artefakt auf Ressourcen zugegriffen werden kann, wird nun über den ResourceLoader zugegriffen. Da aus einer Jar jedoch nicht auf Files zugegriffen werden kann, sondern nur auf Streams, der CascadeClassifier jedoch ein File benötigt, wird die Haarcascade vor dem anonymisieren aus der Jar kopiert.
+\item[\textbf{Installation von OpenCV}] Da wir OpenCV nun über eine Bibliothek verwalten, muss der Benutzer OpenCV nicht mehr selbst installieren.
+\item[\textbf{Konstruktor Metadata (Web-Service)}] Das Laden der Informationen aus dem JSON-Objekt wurde in den try-catch-Block verschoben, um Ausnahmen aufzufangen.
+\item[\textbf{Streams (Web-Service)}] Im Web-Service werden an vielen Stellen Streams gebraucht um Resourcen zu laden. Manchmal wurde jedoch vergessen diese nach Verwendung zu schließen, wodurch Resource-Leaks entstehen konnten.
+\item[\textbf{Pyhton-Skript}] Als wir das vom Frauenhofer-Institut bereitgestellte Python-Skript über einen Java-System-Call ausführen wollten, hat das Skript nach einiger Zeit blockiert. Zunächst waren wir verwundert, da das Skript, wenn man es per Konsole startet, einwandfrei funktioniert. Wie sich später herausstellte, war das Problem, dass das Skript Konsolenausgaben verwendete, die beim Aufruf über Java jedoch nie ausgegeben wurden und nach einiger Zeit den Systempuffer blockierten. Das Problem konnten wir lösen, indem wir den Puffer periodisch leeren und den Inhalt verwerfen
+\end{itemize}

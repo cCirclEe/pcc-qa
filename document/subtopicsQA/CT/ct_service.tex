@@ -1,1 +1,102 @@
-
+ \begin{longtable}{p{.23\textwidth} | p{.65\textwidth} | p{.12\textwidth}}
+\hline
+  \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+  \hline
+  \caption{AccountManagerTest}
+ \end{longtable}
+ 
+ \begin{longtable}{p{.23\textwidth} | p{.65\textwidth} | p{.12\textwidth}}
+\hline
+  \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+  \hline
+  \caption{VideoManagerTest}
+ \end{longtable}
+ 
+ \begin{longtable}{p{.23\textwidth} | p{.65\textwidth} | p{.12\textwidth}}
+\hline
+  \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+  \hline
+  nullTest() & Ruft anonymize() mit null als Parameter auf & false\\
+  \hline
+  validTest() & Ruft anonymize() mit korrekten Parametern auf & true\\
+  \hline
+  noVideoTest() & Ruft anonymize() auf und versucht ein File zu anonymisieren, das kein Video ist & false\\
+  \hline 
+  \caption{OpenCVAnonymizeTest}
+ \end{longtable}
+ 
+ \begin{longtable}{p{.23\textwidth} | p{.65\textwidth} | p{.12\textwidth}}
+\hline
+  \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+  \hline
+  nullTest() & Ruft anonymize() mit null als Parameter auf & false\\
+  \hline
+  validTest() & Ruft anonymize() mit korrekten Parametern auf & true\\
+  \hline
+  noVideoTest() & Ruft anonymize() auf und versucht ein File zu anonymisieren, das kein Video ist & false\\
+  \hline 
+  \caption{OpenCVPythonAnonymizeTest}
+ \end{longtable}
+ 
+ \begin{longtable}{p{.23\textwidth} | p{.65\textwidth} | p{.12\textwidth}}
+\hline
+   \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+  \hline
+  nullTest() & Ruft decrypt() mit null als Parameter auf & false\\
+  \hline
+  validTest() & Ruft decrypt() mit korrekten Parametern auf & true\\
+  \hline 
+  \caption{AESDecryptorTest}
+ \end{longtable}
+ 
+ \begin{longtable}{p{.23\textwidth} | p{.65\textwidth} | p{.12\textwidth}}
+ \hline
+ \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+  \hline
+  nullTest() & Ruft decrypt() mit null als Parameter auf & null\\
+  \hline
+  validTest() & Ruft decrypt() mit korrekten Parametern auf & SecretKey mit Algorighmus 'AES'\\
+  \hline 
+  invalidFileTest() & Ruft decrypt() auf und versucht ein File zu entschlüsseln, das keinen SecretKey enthält & null\\
+  \hline
+  \caption{RSADecryptorTest}
+ \end{longtable}
+ 
+ \begin{longtable}{p{.23\textwidth} | p{.65\textwidth} | p{.12\textwidth}}
+\hline
+   \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+  \hline
+  nullTest() & Ruft decrypt() mit null als Parameter auf & false\\
+  \hline
+  validTest() & Ruft decrypt() mit korrekten Parametern auf & true\\
+  \hline 
+  \caption{DecryptTest}
+ \end{longtable}
+ 
+ \begin{longtable}{p{.23\textwidth} | p{.65\textwidth} | p{.12\textwidth}}
+\hline
+  \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+  \hline
+  emptyChainTest() & Startet eine VideoProcessingChain mit Chain.EMPTY (Testet Speichern und Löschen von tmp-Daten) & true\\
+  \hline
+  simpleChainTest() & Startet eine VideoProcessingChain mit Chain.SIMPLE (Testet Chain ohne Anonymisierung) & true\\
+  \hline
+  normalChainTest() & Startet eine VideoProcessingChain mit Chain.NORMAL (Testet vollständige Chain) & true\\
+  \hline
+  pythonChainTest() & Startet eine VideoProcessingChain mit Chain.PYTHON (Testet Chain vollständige Chain mit Python Anonymisierung) & true\\
+  \hline
+  \caption{VideoProcessingChainTest}
+ \end{longtable}
+ 
+ \begin{longtable}{p{.23\textwidth} | p{.65\textwidth} | p{.12\textwidth}}
+\hline
+  \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+  \hline
+  addNullTaskTest() & Ruft addTask() mit Null als Parameter auf & "Not all inputs were given correctly"\\
+  \hline
+  addValidTaskTest() & Ruft addTask mit korrekten Parametern auf & "Finished editing Video"\\
+  \hline
+  shutdownTest() & Ruft shutdown auf und versucht direkt danach einen Task hinzuzufügen & "Processing module is shut down"\\
+  \hline
+  \caption{VideoProcessingManagerTest}
+ \end{longtable}

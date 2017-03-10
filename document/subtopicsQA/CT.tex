@@ -1,8 +1,14 @@
 \section{Komponenten-Tests}
 
+\subsection{Einleitung}
+Um die Funktionalität der einzelnen Komponenten sicherzustellen, haben wir eine Reihe automatisierter Tests erstellt. Zunächst wurden die alleinstehenden Module einzelnen getestet, um sicher zu stellen, ob jedes einzelne Modul in sich geschlossen funktioniert. Nachdem dies sicher gestellt werden konnte, wurden die Pakete getestet, die das Zusammenspiel der zugrunde liegenden Module bestimmen.\par
+Da sich das automatische Testen von grafischen Oberflächen mit zu hohem Zeitaufwand verbunden ist und keinen Mehrwert bietet, haben wir ein Testprotokoll erstellt, anhand dessen wir die UI manuell getestet haben.\par
+Für den Erfolg eines Programm ist es essentiell, dass es bei korrekten Eingaben korrekte Ergebnisse liefert. Man kann jedoch mit an Sicherheit grenzender Wahrscheinlichkeit davon ausgehen, dass Nutzer nicht genau das macht, was man möchte. Daher haben wir auch eine Reihe von Tests eingefügt, die Ausnahmen und Fehleingaben behandeln.\par
+Das folgende Kapitel wird beschreiben was in den jeweiligen Tests gemacht wurde und welches Ergebnis erwartet wird.
+
 \subsection{App}
 \input{./subtopicsQA/CT/ct_app}
-\subsection{Webinterface}
-\input{./subtopicsQA/CT/ct_interface}
 \subsection{Webservice}
 \input{./subtopicsQA/CT/ct_service}
+\subsection{Webinterface}
+\input{./subtopicsQA/CT/ct_interface}
