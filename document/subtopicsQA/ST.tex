@@ -1,2 +1,130 @@
 \section{System-Tests}
-asdf
+
+\subsection{Einleitung}
+Der Systemtest ist ein Teil der Testphase unseres Produktes, bei der das gesamte System gegen die gesamten Anforderungen (funktionale und nicht-funktionale Anforderungen) getestet wird. Fur gewöhnlich findet der Test auf einer Testumgebung statt und wird mit Testdaten durchgeführt. Die Testumgebung soll reale Bedingungen simulieren, bzw nahe an diese herankommen.
+\subsection{Funktionale Systemtests}
+Wir kümmern uns in diesem Abschnitt nur um die Funktionalen Systemtests.
+Wir haben die jar- Datei des Webservice auf einem unserer privaten Server auf dem Port 2222 gestartet. Zudem haben wir auf dem selben Server das Webinterface auf dem Port 9999 gestartet. Somit haben wir eine reale Umgebung geschaffen, welche über das Internet erreichbar ist. Damit kann auch die App über das Internet mit dem Service kommunizieren. Wir haben alle Komponenten auf die Umgebung angepasst und angefangen, die funktionalen Anforderungen des Pflichtenhefts zu testen. \\
+
+\begin{longtable}{p{.13\textwidth} | p{.4\textwidth} | p{.2\textwidth} | p{.12\textwidth}}
+\hline
+  \textbf{Test} & \textbf{Inhalt} & \textbf{beteiligte\newline Komponente} & \textbf{Ergebnis}\\
+  \hline
+  PK1000 & Nutzer müssen sich anmelden, um die App zu verwenden & App, Service & JA \\
+  \hline
+  PK1010 & Nur registrierte Nutzer können die App verwenden. & App, Service & JA \\
+  \hline 
+  PK1020 & Der Straßenverkehr wird durch die Smartphonekamera beobachtet. & App & JA
+  \\
+  \hline 
+  PK1030 & Relevante Videodaten werden verschlüsselt abgespeichert. & App & JA
+  \\
+  \hline 
+  PK1040 & Relevante Daten werden durch Auswertung der Sensordaten des Smartphones erkannt. Hierbei werden die Werte des G-Sensors ausgewertet. & App & JA
+  \\
+  \hline 
+  PK1050 & Die Aufnahme kann manuell gestartet werden, auch wenn der G-Sensor des Smartphones keinen Anlass dazu gibt. & App & JA
+  \\
+  \hline 
+  PK1060 & Während der Aufnahme werden sämtliche Nutzereingaben und G-Sensordaten ignoriert. & App & JA
+  \\
+  \hline 
+  PK1070 & Es werden relevante Metadaten mit den Videodaten abgespeichert. & App & JA
+  \\
+  \hline 
+  PK1080 & Es wird ab dem Appstart mit dem Beobachten des Straßenverkehrs begonnen. & App & JA (Anmeldung)
+  \\
+  \hline 
+  PK1090 & Es wird nur das Hochformat unterstützt. & App & JA
+   \\
+  \hline 
+  PK1100 & Die Beobachtung läuft nur während sich die App im Vordergrund befindet. & App & JA
+   \\
+  \hline 
+  PK1110 & Videodaten werden verschlüsselt, sobald sie persistiert werden. & App & JA
+   \\
+  \hline 
+  PK1120 & Verschlüsselte Videodaten werden aufgelistet. & App & JA
+   \\
+  \hline 
+  PK1130 & Verschlüsselte Videodaten können gelöscht werden. & App & JA
+   \\
+  \hline 
+  PK1140 & Vom Nutzer ausgewählte verschlüsselte Videodaten werden an einen Web-Dienst gesendet, der diese anonymisiert. & App, Service & JA
+   \\
+  \hline 
+  PK1150 & Geräte, auf denen Android API Level 19 (Android 4.4) und höher läuft werden unterstützt. & App & JA
+   \\
+  \hline 
+  PK1160 & Die Benutzeroberfläche wird für Geräte ab einer Displaydiagonale von 4 Zoll optimiert. & App & JA
+   \\
+  \hline 
+  PK1170 & Wenn verschlüsselte Videodaten lange Zeit nicht zum Anonymisieren ausgewählt wurden, wird der Nutzer benachrichtigt, dass er diese löschen kann. & App & NEIN
+   \\
+  \hline 
+  PK1180 & Die aufnahmespezifischen Einstellungen werden angezeigt. & App & JA
+   \\
+  \hline 
+  PK1190 & Die Standardsprache ist Deutsch. & App & JA
+   \\
+  \hline 
+  PK2000 & Es existiert eine Schnittstelle, um Videodaten hochzuladen. & App & JA
+   \\
+  \hline 
+  PK2010 & Von der App gesendete Videodaten werden anonymisiert. & App & JA
+   \\
+  \hline 
+  PK2020 & Nach Abschluss der Anonymisierung wird der Nutzer per E-Mail benachrichtigt. & App, Service & NEIN (Rückmeldung in App)
+   \\
+  \hline 
+  PK2030 & Es existiert eine Schnittstelle, um Nutzeraccounts anzulegen. & Webinterface & JA
+   \\
+  \hline 
+  PK2040 & Es existiert eine Schnittstelle, um Nutzeraccounts zu verwalten. & Webinterface & JA
+   \\
+  \hline 
+  PK2050 & Es existiert eine Schnittstelle, um die Videodaten eines Nutzers verwalten
+zu können. & App, Webinterface & JA
+   \\
+  \hline 
+  PK2060 & Nutzer müssen ihre E-Mail-Adresse verifizieren, um sich anmelden zu können. & Webinterface & JA
+   \\
+  \hline 
+  PK2070 & Die Kommunikation zwischen App und Web-Dienst wird durch eine REST-API realisiert. & App, Service & JA
+   \\
+  \hline 
+  PK2080 & Die Kommunikation zwischen Web-Interface und Web-Dienst wird durch eine REST-API realisiert. & Webinterface, Service & JA
+   \\
+  \hline 
+  PK2090 & Es existiert eine obere Schranke für die Anzahl der Videodaten, die ein Nutzer zur gleichen Zeit auf seinem Nutzeraccount online speichern kann. & Service & NEIN
+   \\
+  \hline 
+  PK2100 & Passwörter werden nur als Hash-Code abgespeichert. & Service & JA
+   \\
+  \hline 
+  PK2110 & Es wird Jetty verwendet. & Service & JA
+   \\
+  \hline 
+  PK3000 & Es können Nutzeraccounts angelegt werden. & Webinterface, Service & JA
+   \\
+  \hline 
+  PK3010 & Es können Nutzeraccounts verwaltet werden. & Webinterface, Service & JA
+   \\
+  \hline 
+  PK3020 & Es können Videodaten verwaltet werden. & Webinterface, Service & JA
+   \\
+  \hline 
+  PK3030 & Es können Videodaten heruntergeladen werden. & Webinterface, Service & JA
+   \\
+  \hline 
+  PK3040 & Nur eingeloggte Nutzer haben Zugriff auf ihre Nutzerdaten. & App, Webinterface, Service & JA
+   \\
+  \hline 
+  PK3050 & Es können Passwort und E-Mail-Adresse geändert werden. & Webinterface, Service & JA
+   \\
+  \hline 
+  PK3060 & Die Standardsprache ist Deutsch. & App, Webinterface & JA
+  \\
+  \hline
+  \caption{Funktionale Anforderungen des Pflichtenhefts}
+ \end{longtable}
