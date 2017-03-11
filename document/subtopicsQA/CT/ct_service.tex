@@ -12,6 +12,43 @@
   \caption{VideoManagerTest}
  \end{longtable}
  
+  \begin{longtable}{p{.23\textwidth} | p{.65\textwidth} | p{.12\textwidth}}
+\hline
+  \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+  \hline
+  registerTest() & registriert einen User & true \\
+  \hline
+  getAccountIdTest() & registriert einen User und vergleicht die id mit der id, die in der Datenbank eingetragen ist & true \\
+  \hline
+  isVerifiedTest() & registriert und verifiziert einen User & true \\
+  \hline
+  saveProcessedVideo\newline AndMetaTest() & speichert Video- und Metanamen eines Users nach dessen Registration & true \\
+  \hline
+  getVideoInfoTest() & testet die VideoInformationen nach Speichern der Video- und Metanamen eines Users und dessen Registration & true \\
+  \hline
+  getVideoIdBy\newline NameTest() & testet, ob die Methode die VideoId anhand des Namens zurückgibt & true \\
+  \hline
+  getVideoInfo\newline ListTest() & speichert mehrere Videos zu einem User und prüft, ob die Methode getVideoInfoList ein korrektes Array zurückgibt & true \\
+  \hline
+  deleteVideo\newline AndMetaTest() & erstellt ein Video zu einem User und löscht es wieder. Test prüft, ob Video in der Datenbank danach noch existiert & true \\
+  \hline
+  getMeta\newline NameTest() & Testet, ob die Methode getMetaName den Metanamen anhand der VideoId zurückgibt & true \\
+  \hline
+  setMailTest() & Testet, ob die Mail des aktuellen Accounts nach Aufruf der Methode geändert wurde & true \\
+  \hline
+  setPasswordTest() & Testet, ob das Passwort des aktuellen Accounts nach Aufruf der Methode geändert wurde & true \\
+  \hline
+  delete\newline AccountTest() & Testet, ob der aktuelle Account nach Aufruf der Methode noch in der Datenbank existiert & true \\
+  \hline
+  authenticateTest() & erstellt einen Account und testet, ob die Methode authenticate den aktuellen Account authentifiziert & true \\
+  \hline
+  isMail\newline ExistingTest() & Testet, ob die Mail schon in der Datenbank existiert & true \\
+  \hline
+  getSaltTest() & registriert einen Account mit einem bestimmten Salt, um zu testen, ob das Salt in der Datenbank richtig vorhanden ist & true \\
+  \hline
+  \caption{DatabaseManagerTest}
+ \end{longtable}
+ 
  \begin{longtable}{p{.23\textwidth} | p{.65\textwidth} | p{.12\textwidth}}
 \hline
   \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
