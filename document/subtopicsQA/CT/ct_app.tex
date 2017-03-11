@@ -1,1 +1,60 @@
+%  __  __                                 __  __                                   
+% |  \/  |                               |  \/  |                                  
+% | \  / | ___ _ __ ___   ___  _ __ _   _| \  / | __ _ _ __   __ _  __ _  ___ _ __ 
+% | |\/| |/ _ \ '_ ` _ \ / _ \| '__| | | | |\/| |/ _` | '_ \ / _` |/ _` |/ _ \ '__|
+% | |  | |  __/ | | | | | (_) | |  | |_| | |  | | (_| | | | | (_| | (_| |  __/ |   
+% |_|  |_|\___|_| |_| |_|\___/|_|   \__, |_|  |_|\__,_|_| |_|\__,_|\__, |\___|_|   
+%                                    __/ |                          __/ |          
+%                                   |___/                          |___/           
 
+\begin{longtable}{p{.23\textwidth} | p{.55\textwidth} | p{.12\textwidth}}
+\hline
+  \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+  \hline
+  settingsTest() & settings sind richtig im Speicher abgelegt worden & true \\
+  \hline
+  accountDataTest() & accountData sind in den Shared Preferences gespeichert& true \\
+  \hline
+  deleteAccount\newline DataTest() & account ist nach dem Auftrag gelöscht & true \\
+  \hline
+  getTempVideo\newline FileTest() & rufe Methode auf und prüfe, ob ein das File zurückgegeben wurde & true \\
+  \hline
+  getTempMetaData\newline FileTest() & rufe Methode auf und prüfe, ob ein das File zurückgegeben wurde & true \\
+  \hline
+  deleteEncrypted\newline SymmetricKey\newline FileTest() & prüfe, ob der symmetrische Key gelöscht wurde & true \\
+  \hline
+  deleteEncrypted\newline MetadataFileTest() & prüfe, ob die verschlüsselten Metadaten als File zurückgegeben werden & true \\
+  \hline
+  deleteReadable\newline MetadataTest() & prüfe, ob die lesbaren Metadaten zurückgegeben wurden & true \\
+  \hline
+  deleteEncrypted\newline VideoFileTest() & d & true \\
+  \hline
+  createEncrypted\newline SymmetricKey\newline FileTest() & d & true \\
+  \hline
+  createEncrypted\newline VideoFileTest() & d & true \\
+  \hline
+  createEncrypted\newline MetaFileTest() & d & true \\
+  \hline
+  createReadable\newline MetadataFileTest() & d & true \\
+  \hline
+  getAll\newline VideosTest() & d & ignored \\
+  \hline
+  getEncrypted\newline Symmetric\newline KeyTest() & d & ignored \\
+  \hline
+  getEncrypted\newline VideoTest() & d & ignored \\
+  \hline
+  getReadable\newline MetadataTest() & d & ignored \\
+  \caption{MemoryManagerTest}
+ \end{longtable}
+ 
+ 
+                                                      
+% __     __               ____                 
+% \ \   / /              / __ \                
+%  \ \_/ /__  _   _ _ __| |  | |_      ___ __  
+%   \   / _ \| | | | '__| |  | \ \ /\ / / '_ \ 
+%    | | (_) | |_| | |  | |__| |\ V  V /| | | |
+%    |_|\___/ \__,_|_|   \____/  \_/\_/ |_| |_|
+%                                              
+%                                              
+% http://patorjk.com/software/taag/#p=display&f=Big&t=
