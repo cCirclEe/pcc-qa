@@ -1,12 +1,13 @@
 \chapter{Testabdeckung}
 \section{App}
 \includegraphics[scale=0.6]{resources/coverage/app/Coverage.jpg}
-Die Testabdeckung in der App festzustellen hat sich schon früh als problematisch herausgestellt. Durch zahlreiche Abhängigkeiten zu Klassen des Android Frameworks ist es nicht immer möglich, Stubs oder Mocks aller Abhängigkeiten anzubieten und so können die betroffenen Funktionen nicht getestet werden. Da die UI-Tests ebenfalls nicht automatisiert ablaufen erscheint somit die resultierende Testabdeckung als gering. Hier darf nicht die begrenzte Aussagekraft der Testüberdeckung vergessen werden, denn bei genauerem Hinsehen wurden Kern-Funktionen so gut es Android zulässt abgedeckt. In der obigen Grafik ist die Testüberdeckung der Module zu sehen.
+Die Testabdeckung in der App festzustellen hat sich schon früh als problematisch herausgestellt. Durch zahlreiche Abhängigkeiten zu Klassen des Android Frameworks ist es nicht immer möglich, Stubs oder Mocks aller Abhängigkeiten anzubieten. So können die betroffenen Funktionen nicht getestet werden. Da die UI-Tests ebenfalls nicht automatisiert ablaufen, erscheint somit die resultierende Testabdeckung als gering. Hier darf nicht die begrenzte Aussagekraft der Testüberdeckung vergessen werden, denn bei genauerem Hinsehen wurden Kern-Funktionen so gut es Android zulässt abgedeckt. In der obigen Grafik ist die Testüberdeckung der Module zu sehen.
 
 \section{Webinterface}
 Die Funktionalität der Datenmanagerklassen sind mit automatisierten Tests gedeckt. Dadurch wird im Webinterface jedoch nur eine geringe Testüberdeckung durch automatisierte Tests erreicht. Deshalb wurden manuelle Tests, zum Testen der Funktionalität der graphischen Benutzeroberfläche durchgeführt, um eine höhere Überdeckung zu gewährleisten.
 
 \section{Webservice}
+Die Zeilenüberdeckung des gesamten Webservices beträgt 77\%.
 \subsection{data}
 \includegraphics[scale=0.8]{resources/data.jpg}
 Das data-packge beinhaltet die verschiedenen Datenklassen, die Accountdaten sowie Video und Metainformationen beinhalten. Die Testüberdeckung in diesen Klassen geschieht größtenteils durch Tests in anderen packages (Server/Manager Module). Die relevanteste Klasse innerhalb dieses Moduls ist der DatabaseManager. Dieser wurde ausgiebig getestet und überdeckt einen großen Teil der anderen  Klassen.
@@ -21,4 +22,4 @@ Das service-package beinhaltet den ServerProxy und die Main-Klasse, die in groß
 Das videoprocessing-package beinhaltet die komplette Funktion das Video zu bearbeiten (entschlüsseln, anonymisieren, persistieren). Dabei wurde während des Testens Fokus darauf gelegt, das die komplette Funktionalität sowohl mit korrekten als auch mit fehlerhaften Daten zum gewünschten Ergebnis. 
 
 \section{Bewertung}
-Unter Beachtung der oben genannten Probleme und Schwierigkeiten, die das Erreichen einer 100\%igen Testüberdeckung erschweren, sichern unsere Tests Kernfunktionalitäten, die in Model und Controller implementiert sind. Die größten Defizite ergeben sich bei UI-Klassen. Deren Funktionalität konnten wir jedoch anhand unserer Testprotokolle abdecken.
+Unter Beachtung der oben genannten Probleme und Schwierigkeiten, die das Erreichen einer 100\%igen Testüberdeckung erschweren, sichern unsere Tests Kernfunktionalitäten, die in Model und Controller implementiert sind. Die größten Defizite ergeben sich bei UI-Klassen. Deren Funktionalität konnten wir jedoch anhand unserer Testprotokolle abdecken. Im große und ganzen haben wir unsere Testmöglichkeiten effizient ausgenutzt und ein zufriedenstellendes Ergebnis erzielt.
