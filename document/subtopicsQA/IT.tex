@@ -1,3 +1,31 @@
 \section{Integration-Tests}
 
-Die Integration-Tests sind alle über den ServerProxyTest im Web-Service abgedeckt. Dabei repräsentiert jede Methode innerhalb dieser Testklasse einen spezifischen Integrationstest. Bei jeder Methode wird eine unterschiedliche Rest-Schnittstellenmethode verwendet und somit überprüft. (TODO: Link zur ServerProxyTest Klasse). Innerhalb dieses Tests werden somit die App zu Web-Service und Web-Interface zu Web-Service Anfragen überprüft. Integrationstest in den jeweiligen beiden anderen Komponenten sind somit überflüssig und wurden nicht umgesetzt.  
+Die Integration-Tests sind alle über den ServerProxyTest im Web-Service abgedeckt, welcher gleichzeitig als Komponententest fungiert. Dabei repräsentiert jede Methode innerhalb dieser Testklasse einen spezifischen Integrationstest. Bei jeder Methode wird eine unterschiedliche Rest-Schnittstellenmethode verwendet und somit überprüft. Innerhalb dieses Tests werden die App zu Web-Service und Web-Interface zu Web-Service Anfragen gestellt und bestimmte Antworten des Services vorausgesetzt. Integrationstest in den jeweiligen beiden anderen Komponenten sind somit überflüssig und wurden nicht umgesetzt. Zur Realisierung der verschiedenen Tests wurde der gleiche Jersey-Klient verwendet wie in App/Interface um die Anfrage-Bedingungen möglichst realistisch zu gestalten. Ein Thread startet bei der setUp-Methode jeweils den Service und ein anderer Thread ruft die unterschiedlichen Testmethoden auf und stellt somit seine Anfragen an den Service-Thread. Dieser gibt dann an den Request-Thread eine Antwort zurück.
+
+\begin{longtable}{p{.23\textwidth} | p{.55\textwidth} | p{.12\textwidth}}
+\hline
+  \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+  \hline
+   authenticate- \newline ValidTest() & Stellt eine Authentifizierungsanfrage mit einem registrierten und verifizierten Account und prüft die Korrektheit des Rückgabewertes & SUCCESS\\
+  \hline
+  authenticate- \newline FailTest() & Stellt eine Authentifizierungsanfrage ohne die benötigten Parameter und überprüft das die Antwort des Services & FAILURE \\
+  \hline
+  verifyTest() & Stellt eine Verifizierungsanfrage mit einem bereits registrierten Account und erwaretet eine erfolgreiche Verifizierung & SUCCES \\
+  \hline
+   downloadTest() & Stellt eine Download-Anfrage mit einem registrierten und verifizierten Account auf eine manuell eingesetzte Videodatei und erwartet einen Inputstream dieser Datei & SUCCESS \\
+  \hline
+  videosTest() & Stellt eine Videolisten Anfrage mit einem registrierten und verifizierten Account und erwartet als Rückgabe innerhalb der Videoliste ein Video mit dem Namen "pod" & SUCCESS \\
+  \hline
+  create- \newline AccountTest() & Stellt eine Accounterstellungsanfrage mit einem nicht registrierten Account und überprüft dessen Erstellung & SUCCESS \\
+  \hline
+  delete- \newline AccountTest() & Stellt eine Accountlöschungsanfrage mit einem registrierten und verifizierten Account und erwartet eine erfolgreiche Löschung & SUCCESS \\
+  \hline
+  videoDeleteTest() & Stellt eine Videolöschungsanfrage mit einem registrierten und verifizierten Account. Dabei haben wir für diesen Test eine Video und eine Metadata Datei angelegt, welche durch die Anfrage gelöscht werden sollen & SUCCESS \\
+  \hline
+  videoInfoTest() & Stellt eine Metadatenanfrage zu einem bereits erstellten Video mit dazugehörigen Metadaten. Der abfragende Account ist registriert und verifiziert & SUCCESS \\
+  \hline
+  uploadValidTest() & Stellt eine Upload-Anfrage mit einem bereits registrierten und verifizierten Account. Die benutzen Daten sind den Anforderungen angepasst(Video und Metadatei verschlüsselt) und vollständig vorhanden (Videodatei, Metadatei und Schlüsseldatei). Nach dem Durchlauf der verschiedenen Bearbeitungsstufen erwarten wir eine positive Rückmeldung des Services & SUCCESS \\
+  \hline
+  uploadFailTest() & Stellt eine Upload-Anfrage mit einem bereits registrierten und verifizierten Account. In diesem Testfall schicken wir die benötigten Parameter nicht mit und erwarten negative Rückmeldung des Services & FAILURE \\
+  \caption{VideoUploadTaskTest}
+ \end{longtable}
