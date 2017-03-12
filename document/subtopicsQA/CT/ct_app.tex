@@ -1,3 +1,5 @@
+\subsubsection{Automatisierte Tests}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                    Memory Manager                    %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -217,6 +219,69 @@
    onClickDouble() & Prüft ob die Aufnahme nicht bei einem Doppelklick ausgelöst wird & Ausgelöst \\
    \hline
   \caption{CompatCameraHandlerTest}
+\end{longtable}
+ 
+ 
+ 
+\subsubsection{Manuelle Tests}
+
+\begin{longtable}{p{.50\textwidth} | p{.50\textwidth}}
+\hline
+\textbf{Aktion} & \textbf{Reaktion}\\
+\hline
+Erster Appstart & >API20: Abfrage von Permissions, <=API19: LogIn-Ansicht anzeigen\\
+\hline
+Klicken auf ``ALLOW AND START'' & Erlaubnisse werden über Android Dialoge abgefragt\\
+\hline
+Appstart nach Erteilen der Erlaubnisse wenn nicht eingeloggt oder nach Erteilen der Erlaubnisse bei Permission-Abfrage & Anzeige der LogIn-Ansicht\\
+\hline
+Eingabe falscher Accountdaten auf LogIn-Ansicht und Klicken auf ``LogIn'' & Fehler ausgeben\\
+\hline
+Eingabe richtiger Accountdaten auf LogIn-Ansicht und Klicken auf ``LogIn'' & Kameraansicht starten \\
+\hline
+Klicken auf ``Register'' auf LogIn-Ansicht & Öffnen des Browsers mit der Registrier-Schaltfläche\\
+\hline
+Doppeltippen auf Kameravorschau & Starten der Aufnahme und Anzeigen eines Videorecorders am Bildschirmrand. Am Ende der Aufnahme ausblenden des Videorecorders \\
+\hline  
+Tippen auf den Menü-Button & Aufklappen des Menüs\\
+\hline  
+Tippen auf einen Menüpunkt einer Ansicht, die gerade nicht angezeigt wird & Markieren des ausgewählten Eintrages und wechseln zur jeweiligen Ansicht\\
+\hline
+Tippen auf einen Menüpunkt der Ansicht, die gerade angezeigt wird & Keine Aktion\\
+\hline
+Beschleunigung des Gerätes in der Kamera-Ansicht über 2,3G & Auslösen der Aufnahme\\
+\hline
+Aufrufen der Videos-Ansicht & Anzeigen aller bisher aufgenommenen Videos mit Name und Datum\\
+\hline
+Antippen eines Videos in der Videos-Ansicht & Anzeigen der Metadaten in einem Dialog\\
+\hline
+Antippen des Upload-Buttons eines Videos & Hochladen des Videos, Anzeigen eines Ladebalkens und Ausblenden des Upload-Buttons. Nach dem Upload Anzeigen des Upload-Buttons und Ausblenden des Ladebalkens\\
+\hline
+Antippen des Upload-Buttons eines Videos während dem Hochladen eines anderen Videos & Anzeigen einer Fehlermeldung\\
+\hline
+Antippen des Löschen-Buttons eines Videos während dem Hochladen eines anderen Videos & Anzeigen einer Fehlermeldung\\
+\hline
+Antippen des Löschen-Buttons eines Videos & Löschen des Videos vom Speicher und entfernen des Videos aus der Liste\\
+\hline
+Aufrufen der Settings-Ansticht & Anzeigen der Settings mit den zuletzt eingestellten Werten\\
+\hline
+Tippen auf ``HIGH'' auf Settings-Ansicht & Markieren der Qualitätseinstellung ``HIGH'' und Modifikation der Einstellungen\\
+\hline
+Tippen auf ``MEDIUM'' auf Settings-Ansicht & Markieren der Qualitätseinstellung ``MEDIUM'' und Modifikation der Einstellungen\\
+\hline
+Tippen auf ``LOW'' auf Settings-Ansicht & Markieren der Qualitätseinstellung ``LOW'' und Modifikation der Einstellungen\\
+\hline
+Tippen und Ziehen des Balkens ``Frames'' auf Settings-Ansicht & Anzeigen des per Tippen und Ziehen ausgewählten Wertes neben dem Balken und Modifikation der Einstellungen\\
+\hline
+Tippen auf ``+'' unter ``BufferSize'' auf Settings-Ansicht & Erhöhen der BufferSize um 5 außer sie ist bereits auf 120, anzeigen des neuen Wertes neben dem Button und Modifikation der Einstellungen\\
+\hline
+Tippen auf ``-'' unter ``BufferSize'' auf Settings-Ansicht & Erniedrigen der BufferSize um 5 außer sie ist bereits auf 5, Anzeigen des neuen Wertes neben dem Button und Modifikation der Einstellungen\\
+\hline
+Tippen auf ``LOG OUT'' auf Settings-Ansicht & Anzeigen der LogIn-Ansicht und löschen der Accountdaten\\
+\hline
+Tippen auf ``LEGAL INFORMATION'' auf LegalInformation-Ansicht & Anzeigen eines Impressums in einem Dialog\\
+\hline
+
 \end{longtable}
                                                       
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
