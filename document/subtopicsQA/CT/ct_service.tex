@@ -2,27 +2,27 @@
 \hline
   \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
   \hline
-  createSaltTest() & Ruft mit einem bereits registrierten Account die createSalt() Methode auf und überprüft die Salzerstellung & true \\
+  createSaltTest() & Überprüft die korrekte Erstellung des Salzes & true \\
   \hline
-  changeTest() & Ruft mit einem bereits registrierten Account und neuen Accountdaten die changeAccount() Methode auf und testet die erfolgreiche Änderung & true \\
+  changeTest() & Testet die Änderung der Accountdaten & true \\
   \hline
-  registerTest() & Registriert einen User mit nicht registrierten Accountdaten und überprüft die korrekte Erstellung & true \\
+  registerTest() & Registriert einen User und überprüft die korrekte Erstellung & true \\
   \hline
-  deleteTest() & Testet die korrekte Löschung eines registrierten Accounts bei einem bereits registrierten Account & true \\
+  deleteTest() & Testet die korrekte Löschung eines registrierten Accounts & true \\
   \hline
-  accountIdTest() & Vergleicht die Account-Id eines Account Objektes mit dem dazugehörigem Wert in der Datenbank und überprüft auf Korrektheit & true \\
+  accountIdTest() & Vergleicht die Account-Id des Account Objektes mit dem dazugehörigem Wert in der Datenbank & true \\
   \hline
-  authenticateTest() &  Ruft die Authentifizierungsmethode mit korrekten Parametern auf und erwartetet positive Rückmeldung der Methode  & true \\
+  authenticateTest() &  Authentifizierungstest eines bereits registrierten Accounts & true \\
   \hline
-  verifyTest() & Durchläuft einen Verifizierungsvorgang eines Accounts durch das aufrufen der verify()-Methode eines bereits registrierten Accounts & true \\
+  verifyTest() & Durchläuft einen Verifizierungsvorgang eines Accounts & true \\
   \hline
-  isVerifiedValidTest() & Überprüft ob ein bereits verifizierten Account verifiziert ist, durch das aufrufen der isVerify()-Methode mit entsprechenden Accountdaten & true \\
+  isVerifiedValidTest() & Überprüft ob einen bereits verifizierten Account verifiziert ist & true \\
   \hline
-  isVerifiedFalseTest() & Überprüft ob ein nicht verifizierter Account verifiziert ist, durch das aufrufen der isVerify()-Methode mit entsprechenden Accountdaten & false \\
+  isVerifiedFalseTest() & Überprüft ob ein nicht verifizierter Account verifiziert ist & false \\
   \hline
-  invalidMailTest() & Testet die Überprüfung einer invaliden Mailadresse, durch das explizite aufrufen der isValidMail()-Methode mit entsprechenden Parametern & false \\
+  invalidMailTest() & Testet die Überprüfung einer invaliden Mailadresse & false \\
   \hline
-  blankMailTest() & Testet die Überprüfung einer leeren Mailadresse, durch das explizite aufrufen der isValidMail()-Methode mit entsprechenden Parametern & false \\
+  blankMailTest() & Testet die Überprüfung einer leeren Mailadresse & false \\
   \hline
   \caption{AccountManagerTest}
  \end{longtable}
@@ -31,13 +31,13 @@
 \hline
   \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
   \hline
-  videoInfoListTest() & Erstellt Videos für einen spezifischen Account und überprüft die korrekte Ausgabe der VideoInfoList durch das aufrufen der getVideoInfoList()-Methode & true \\
+  videoInfoListTest() & Überprüft die korrekte Ausgabe der VideoInfoList & true \\
   \hline
-  downloadTest() & Durchläuft einen Downloadvorgang durch Überprüfung der download()-Methode. Dabei wird ein Video im Service platziert sodass dieses erfolgreich zu einem Inputstream umgewandelt werden kann. Dabei wird getestet ob ein Inputstream ankommt, mit dem dann eine Testdatei erstellt werden kann & true \\
+  downloadTest() & Durchläuft einen Downloadvorgang und überprüft dabei ob ein Inputstream ankommt, mit dem dann eine Testdatei angelegt wird & true \\
   \hline
-  deleteTest() & Legt eine Video und Metadata Datei an, die über den Testverlauf mit der videoDelete()-Methode gelöscht werden sollen & true \\ 
+  deleteTest() & Legt eine Video und Metadata Datei an, die über den Testverlauf gelöscht werden sollen & true \\ 
   \hline
-  metadataTest() & Testet die Korrektheit die Metadateninfomationen, die zu Testbeginn angelegt und über die getMetaData()-Methode abgefragt werden & true \\
+  metadataTest() & Testet die Korrektheit  der Metadateninfomationen, welche über den Klienten angefragt werden & true \\
   \hline
   \caption{VideoManagerTest}
  \end{longtable}
@@ -100,7 +100,7 @@
   \hline
   validTest() & Ruft anonymize() mit korrekten Parametern auf & true\\
   \hline
-  noVideoTest() & Ruft anonymize() auf und versucht ein File zu anonymisieren, das kein Video ist & false\\
+  noVideoTest() & Ruft anonymize() auf und versucht ein File zu anonymisieren, das kein korrekten Video ist & false\\
   \hline 
   \caption{OpenCVPythonAnonymizeTest}
  \end{longtable}
@@ -161,9 +161,9 @@
   \hline
   addNullTaskTest() & Ruft addTask() mit Null als Parameter auf & "Not all inputs were given correctly"\\
   \hline
-  addValidTaskTest() & Ruft addTask mit korrekten Parametern auf & "Finished editing Video"\\
+  addValidTaskTest() & Ruft addTask() mit korrekten Parametern auf & "Finished editing Video"\\
   \hline
-  shutdownTest() & Ruft shutdown auf und versucht direkt danach einen Task hinzuzufügen & "Processing module is shut down"\\
+  shutdownTest() & Ruft shutdown() auf und versucht direkt danach einen Task hinzuzufügen & "Processing module is shut down"\\
   \hline
   \caption{VideoProcessingManagerTest}
  \end{longtable}

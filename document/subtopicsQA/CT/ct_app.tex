@@ -9,35 +9,36 @@
   \hline
   accountDataTest() & speichere fertiges AccountData-Objekt mit saveAccountData() und lese mit getAccountData() aus & identisches AccountData-Objekt \\
   \hline
-  deleteAccount\newline DataTest() & speichere mit saveAccountData() ein AccountData-Objekt und lösche es mit deleteAccountData() & File existiert nicht mehr \\
+  deleteAccount-\newline DataTest() & speichere mit saveAccountData() ein AccountData-Objekt und lösche es mit deleteAccountData() & File existiert nicht mehr \\
   \hline
-  getTempVideo\newline FileTest() & erstelle ein File im tempVideoFile-Directory und rufe getTempVideoFile() auf & File nicht null \\
+  getTempVideo-\newline FileTest() & erstelle ein File im tempVideoFile-Directory und rufe getTempVideoFile() auf & File nicht null \\
   \hline
-  getTempMetaData\newline FileTest() & erstelle ein File im tempMetaData-Directory und rufe getTempMetaDataFile() auf & true \\
+  getTempMetaData-\newline 
+  FileTest() & erstelle ein File im tempMetaData-Directory und rufe getTempMetaDataFile() auf & true \\
   \hline
-  deleteEncrypted\newline SymmetricKey\newline FileTest() & erstelle ein File im korrekten Pfad und lösche es mit deleteEncryptedSymmetricKeyFile & File existiert nicht mehr \\
+  deleteEncrypted-\newline SymmetricKey-\newline FileTest() & erstelle ein File im korrekten Pfad und lösche es mit deleteEncryptedSymmetricKeyFile & File existiert nicht mehr \\
   \hline
-  deleteEncrypted\newline MetadataFileTest() & erstelle ein File im korrekten Pfad und lösche es mit deleteEncryptedMetadataFile() & File existiert nicht mehr \\
+  deleteEncrypted-\newline MetadataFileTest() & erstelle ein File im korrekten Pfad und lösche es mit deleteEncryptedMetadataFile() & File existiert nicht mehr \\
   \hline
-  deleteReadable\newline MetadataTest() & erstelle ein File im korrekten Pfad und lösche es mit deleteReadableMetadata() & File existiert nicht mehr \\
+  deleteReadable-\newline MetadataTest() & erstelle ein File im korrekten Pfad und lösche es mit deleteReadableMetadata() & File existiert nicht mehr \\
   \hline
-  deleteEncrypted\newline VideoFileTest() & erstelle ein File im korrekten Pfad und lösche es mit deleteEncryptedVideoFile() & File existiert nicht mehr \\
+  deleteEncrypted-\newline VideoFileTest() & erstelle ein File im korrekten Pfad und lösche es mit deleteEncryptedVideoFile() & File existiert nicht mehr \\
   \hline
-  createEncrypted\newline SymmetricKey\newline FileTest() & Erstelle eine Datei im korrekten Pfad & Dateipfad und Name sind korrekt \\
+  createEncrypted-\newline SymmetricKey-\newline FileTest() & Erstelle eine Datei im korrekten Pfad & Dateipfad und Name sind korrekt \\
   \hline
-  createEncrypted\newline VideoFileTest() & Erstelle eine Datei im korrekten Pfad & Dateipfad und Name sind korrekt \\
+  createEncrypted\newline VideoFileTest() & rufe createEncryptedVideoFile() auf & Dateipfad und Name sind korrekt \\
   \hline
-  createEncrypted\newline MetaFileTest() & Erstelle eine Datei im korrekten Pfad & Dateipfad und Name sind korrekt \\
+  createEncrypted-\newline MetaFileTest() & rufe createEncryptedMetaFile() auf & Dateipfad und Name sind korrekt \\
   \hline
-  createReadable\newline MetadataFileTest() & Erstelle eine Datei im korrekten Pfad & Dateipfad und Name sind korrekt \\
+  createReadable\newline MetadataFileTest() & rufe createReadableMetadataFile() auf & Dateipfad und Name sind korrekt \\
   \hline
   getAll\newline VideosTest() & Erstelle Beispielvideos und rufe getAllVideos() auf & List enthält alle Videos \\
   \hline
-  getEncrypted\newline Symmetric\newline KeyTest() & erstelle ein File und hole es mit getEncryptedSymmetricKey() & File ist nicht null \\
+  getEncrypted-\newline Symmetric\newline KeyTest() & erstelle ein File und hole es mit getEncryptedSymmetricKey() & File ist nicht null \\
   \hline
-  getEncrypted\newline VideoTest() & erstelle ein File und hole es mit getEncryptedVideo() & File ist nicht null \\
+  getEncrypted-\newline VideoTest() & erstelle ein File und hole es mit getEncryptedVideo() & File ist nicht null \\
   \hline
-  getReadable\newline MetadataTest() & erstelle ein File und hole es mit getReadableMetadata() & File ist nicht null \\
+  getReadable-\newline MetadataTest() & erstelle ein File und hole es mit getReadableMetadata() & File ist nicht null \\
   \hline
   \caption{MemoryManagerTest}
  \end{longtable}
@@ -50,15 +51,15 @@
 \hline
   \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
   \hline
-  MissingTest() & Überprüft den Authentifizierungswert eines nicht existenten Accounts & FAILURE MISSING \\
+  missingTest() & Überprüft Authentifizierungswert eines nicht existenten Accounts & FAILURE MISSING \\
   \hline
-  SuccessTest() & Überprüft den Authentifizierungswert eines registrierten und verifizierten Accounts & SUCCESS \\
+  successTest() & Überprüft Authentifizierungswert eines registrierten und verifizierten Accounts & SUCCESS \\
   \hline
-  NotVerifiedTest() & Überprüft den Authentifizierungswert eines registrierten und nicht verifizierten Accounts & NOT VERIFIED \\
+  notVerifiedTest() & Überprüft den Authentifizierungswert eines registrierten und nicht verifizierten Accounts & NOT VERIFIED \\
   \hline
-  MissmatchTest() & Überprüft den Authentifizierungswert eines registrierten und verifizierten Accounts mit falscher Passwordeingabe & FAILURE MISSMATCH \\
+  missmatchTest() & Überprüft den Authentifizierungswert eines registrierten und verifizierten Accounts mit falscher Passwordeingabe & FAILURE MISSMATCH \\
   \hline
-  FailureOtherTest() & Überprüft den Authentifizierungswert beim Übergeben eines NullObjektes(JSON mit Accountdaten) & FAILURE OTHER \\
+  failureOtherTest() & Überprüft den Authentifizierungswert beim Übergeben eines Null-Objektes & FAILURE OTHER \\
   \hline
    onPostExecute- \newline NoNetworkTest() & Überprüft die onPostExecute() Methode mit der Eingabe des States FAILURE NETWORK & "No network available" \\
   \hline
@@ -76,11 +77,11 @@
   \hline
   Account- \newline FailureTest() & Überprüft den Rückgabewert des Services bei der Übergabe eines nicht existenten Accounts & ACCOUNT FAILURE \\
   \hline
-  UploadValidTest() & Überprüft den Rückgabewert des Services bei korrekter Angabe aller benötigten Parameter für einen Upload  & SUCCESS \\
+  uploadValidTest() & Überprüft den Rückgabewert des Services bei korrekter Angabe aller benötigten Parameter für einen Upload  & SUCCESS \\
   \hline
-  NotVerifiedTest() & Überprüft den Authentifizierungswert eines registrierten und nicht verifizierten Accounts & NOT VERIFIED \\
+  notVerifiedTest() & Überprüft den Authentifizierungswert eines registrierten und nicht verifizierten Accounts & NOT VERIFIED \\
   \hline
-  FailureOtherTest() & Überprüft den Rückgabewert des Services beim Übergeben eines NullObjektes(JSON mit Accountdaten) & FAILURE OTHER \\
+  failureOtherTest() & Überprüft den Rückgabewert des Services beim Übergeben eines NullObjektes(JSON mit Accountdaten) & FAILURE OTHER \\
   \hline
    onPostExecute- \newline NoNetworkTest() & Überprüft die onPostExecute() Methode mit der Eingabe des States FAILURE NETWORK & "No network available" \\
   \hline
