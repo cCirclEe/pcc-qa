@@ -6,7 +6,7 @@ Als Integrations-Tests werden die Tests bezeichnet, die die korrekte Kommunikati
 Da wir auf dem Web-Service eine einheitliche REST-Schnittstelle definiert haben, können wir die Kommunikation über einen  Testclienten überprüfen, der die Aufrufe von App bzw. Interface emuliert. Die Integration-Tests sind daher alle über den ServerProxyTest im Web-Service abgedeckt. Dabei überprüft jede Methode eine REST-Schnittstellenmethode.\par 
 Hierfür startet bei jedem Test ein Thread zunächst den Web-Service. Daraufhin stellt der Client-Thread seine Anfragen an den Service, der daraufhin die Anfrage bearbeitet und dem Clienten Rückmeldung gibt.
 
-\subsection{Test-Client}
+\subsection{Test-Klient}
 
 \begin{longtable}{p{.23\textwidth} | p{.55\textwidth} | p{.12\textwidth}}
 \hline
@@ -20,7 +20,7 @@ Hierfür startet bei jedem Test ein Thread zunächst den Web-Service. Daraufhin 
   \hline
    downloadTest() & Stellt eine Download-Anfrage mit einem registrierten und verifizierten Account auf eine manuell eingesetzte Videodatei & Inputstream der Datei \\
   \hline
-  videosTest() & Stellt eine Videolisten Anfrage mit einem registrierten und verifizierten Account & JSON-Objekt mit passender Videoinfo \\
+  videosTest() & Stellt eine Videolisten Anfrage mit einem registrierten und verifizierten Account & JSON-Array mit passender VideoInfo \\
   \hline
   create- \newline AccountTest() & Stellt eine Accounterstellungsanfrage eines noch nicht registrierten Accounts & SUCCESS \\
   \hline
@@ -32,7 +32,7 @@ Hierfür startet bei jedem Test ein Thread zunächst den Web-Service. Daraufhin 
   \hline
   uploadValidTest() & Stellt eine Upload-Anfrage mit einem bereits registrierten und verifizierten Account. Die benutzen Daten sind den Anforderungen angepasst(Video und Metadatei verschlüsselt) und vollständig vorhanden (Videodatei, Metadatei und Schlüsseldatei). & "Finished editing video." \\
   \hline
-  uploadFailTest() & Stellt eine Upload-Anfrage mit einem bereits registrierten und verifizierten Account. In diesem Testfall schicken wir die benötigten Parameter nicht mit & FAILURE \\
+  uploadFailTest() & Stellt eine Upload-Anfrage mit einem bereits registrierten und verifizierten Account. In diesem Testfall schicken wir die benötigten Parameter nicht mit & "Uploaded data was not received correctly" \\
   \hline
   \caption{VideoUploadTaskTest}
  \end{longtable}
