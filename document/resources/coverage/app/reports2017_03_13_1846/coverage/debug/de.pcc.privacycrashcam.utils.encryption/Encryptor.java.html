@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Encryptor.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">de.pcc.privacycrashcam.utils.encryption</a> &gt; <span class="el_source">Encryptor.java</span></div><h1>Encryptor.java</h1><pre class="source lang-java linenums">package de.pcc.privacycrashcam.utils.encryption;
+
+import java.io.File;
+import java.io.InputStream;
+
+import javax.crypto.SecretKey;
+
+/**
+ * The Encryptor is a Class used to encrypt files with a hybrid encryption algorithm.
+ * It takes any amount of input files and encrypts them with a AES symmetric key.
+ * Then it encrypts the key itself with a public RSA key.
+ *
+ * @author Josh Romanowski
+ */
+
+public class Encryptor {
+
+    /* #############################################################################################
+     *                                  attributes
+     * ###########################################################################################*/
+
+    /**
+     * Encryptor used for encrypting files
+     */
+    private IFileEncryptor fileEncryptor;
+    /**
+     * Encryptor used for encrypting keys.
+     */
+    private IKeyEncryptor keyEncryptor;
+
+    /* #############################################################################################
+     *                                  constructors
+     * ###########################################################################################*/
+
+    /**
+     * Creates a new hybrid encryptor which uses the AES algorithm for symmetric
+     * and RSA for asymmetric encryption.
+     */
+<span class="fc" id="L39">    public Encryptor() {</span>
+<span class="fc" id="L40">        fileEncryptor = new AESEncryptor();</span>
+<span class="fc" id="L41">        keyEncryptor = new RSAEncryptor();</span>
+<span class="fc" id="L42">    }</span>
+
+    /* #############################################################################################
+     *                                  methods
+     * ###########################################################################################*/
+
+    /**
+     * Encrypts a number of input files via a hybrid encryption algorithm.
+     * For each input file in the input file array an output file which is declared in
+     * the output file array gets created.
+     * Each entry in the input array gets mapped to the entry in the output array with the same index.
+     * E.g. input[0] maps to output [0].
+     * Therefore input and output have to be equally sized.
+     *
+     * @param input     Input array of all files to be anonymized.
+     * @param output    Output array of the accompanying output files.
+     * @param publicKey InputStream of the public asymmetric key file.
+     * @param encKey    Output file for the encrypted symmetric key.
+     * @return Returns whether encrypting the files and the symmetric key was successfull or not.
+     */
+    public boolean encrypt(File[] input, File[] output, InputStream publicKey, File encKey) {
+        // assert inputs
+<span class="pc bpc" id="L64" title="3 of 6 branches missed.">        if (input == null || output == null || encKey == null) {</span>
+<span class="nc" id="L65">            return false;</span>
+        }
+
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if (input.length != output.length) {</span>
+<span class="nc" id="L69">            return false;</span>
+        }
+
+        // create symmetric key
+<span class="fc" id="L73">        SecretKey key = fileEncryptor.generateKey();</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">        if (key == null) {</span>
+<span class="nc" id="L75">            return false;</span>
+        }
+
+        // encrypt
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        for (int i = 0; i &lt; input.length; i++) {</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">            if (!fileEncryptor.encrypt(input[i], key, output[i])) {</span>
+<span class="fc" id="L81">                return false;</span>
+            }
+        }
+
+<span class="fc" id="L85">        return keyEncryptor.encrypt(key, publicKey, encKey);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span>Generated by the Android Gradle plugin 2.3.0</div></body></html>

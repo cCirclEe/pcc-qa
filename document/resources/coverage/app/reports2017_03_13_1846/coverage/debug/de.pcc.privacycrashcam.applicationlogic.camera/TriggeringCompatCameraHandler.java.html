@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TriggeringCompatCameraHandler.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">de.pcc.privacycrashcam.applicationlogic.camera</a> &gt; <span class="el_source">TriggeringCompatCameraHandler.java</span></div><h1>TriggeringCompatCameraHandler.java</h1><pre class="source lang-java linenums">package de.pcc.privacycrashcam.applicationlogic.camera;
+
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.util.Log;
+import android.view.SurfaceView;
+import android.view.View;
+
+import java.io.FileNotFoundException;
+
+import de.pcc.privacycrashcam.R;
+import de.pcc.privacycrashcam.data.Metadata;
+
+/**
+ * Decorates the CompatCameraHandler so that it triggers recording on its own after recognizing a
+ * button click or after measured acceleration force exceeds the set maximum.
+ */
+public class TriggeringCompatCameraHandler extends CompatCameraHandler implements
+        SensorEventListener, View.OnClickListener {
+    private final static String TAG = &quot;TRG_CMP_CAM_HANDLER&quot;;
+    private final static float MAX_G_FORCE = 2.3f;
+    private final static float GRAVITY_CONSTANT = 10.0f;
+
+<span class="fc" id="L27">    private float[] accelValues = {0f, 0f, 0f};</span>
+<span class="fc" id="L28">    private long lastTap = 0;</span>
+    private static final long DOUBLE_TAP_TIME_SPAN = 700; // 700ms to double tap
+
+    /**
+     * Creates a new camera handler with the passed parameters and sets up callbacks, camera, media
+     * recorder and buffer. Also sets up the sensor.
+     *
+     * @param context        application context
+     * @param previewView    view to be used as preview for the camera
+     * @param recordCallback callback to be notified about recording state
+     */
+    public TriggeringCompatCameraHandler(Context context, SurfaceView previewView,
+                                         RecordCallback recordCallback) {
+<span class="fc" id="L41">        super(context, previewView, recordCallback);</span>
+
+<span class="fc" id="L43">        SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);</span>
+<span class="fc" id="L44">        Sensor accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        if(!sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_FASTEST))</span>
+<span class="nc" id="L46">            recordCallback.onError(context.getString(R.string.error_sensor));</span>
+<span class="fc" id="L47">    }</span>
+
+    /**
+     * Called when sensor values have changed.
+     * &lt;p&gt;See {@link SensorManager SensorManager}
+     * for details on possible sensor types.
+     * &lt;p&gt;See also {@link SensorEvent SensorEvent}.
+     * &lt;p&gt;
+     * &lt;p&gt;&lt;b&gt;NOTE:&lt;/b&gt; The application doesn't own the
+     * {@link SensorEvent event}
+     * object passed as a parameter and therefore cannot hold on to it.
+     * The object may be part of an internal pool and may be reused by
+     * the framework.
+     *
+     * @param event the {@link SensorEvent SensorEvent}.
+     */
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER) return;</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (event.values == null) return;</span>
+
+        /*
+        Log.i(TAG, &quot;VAL at 0: &quot; + event.values[0]);
+        Log.i(TAG, &quot;VAL at 1: &quot; + event.values[1]);
+        Log.i(TAG, &quot;VAL at 2: &quot; + event.values[2]);
+        */
+
+<span class="fc" id="L74">        this.accelValues = event.values;</span>
+
+<span class="fc" id="L76">        float maxRawVal = GRAVITY_CONSTANT * MAX_G_FORCE;</span>
+<span class="pc bpc" id="L77" title="3 of 6 branches missed.">        if(event.values[0] &gt; maxRawVal</span>
+                || event.values[1] &gt; maxRawVal
+                || event.values[2] &gt; maxRawVal) {
+<span class="nc" id="L80">            Metadata metadata = new Metadata(System.currentTimeMillis(),</span>
+                    Metadata.TRIGGER_TYPE_SENSOR, event.values);
+<span class="nc" id="L82">            updateMetadata(metadata);</span>
+<span class="nc" id="L83">            schedulePersisting();</span>
+        }
+<span class="fc" id="L85">    }</span>
+
+    /**
+     * Called when the accuracy of the registered sensor has changed.
+     * &lt;p&gt;
+     * &lt;p&gt;See the SENSOR_STATUS_* constants in
+     * {@link SensorManager SensorManager} for details.
+     *
+     * @param sensor   acceleration sensor
+     * @param accuracy The new accuracy of this sensor, one of
+     *                 {@code SensorManager.SENSOR_STATUS_*}
+     */
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // ignored
+<span class="fc" id="L100">    }</span>
+
+    /**
+     * Called when a view has been clicked.
+     *
+     * @param v The view that was clicked.
+     */
+    @Override
+    public void onClick(View v) {
+<span class="fc" id="L109">        long tapTime = System.currentTimeMillis();</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">        if (tapTime - lastTap &lt;= DOUBLE_TAP_TIME_SPAN) {</span>
+            // double tap
+<span class="fc" id="L112">            Metadata metadata = new Metadata(System.currentTimeMillis(),</span>
+                    Metadata.TRIGGER_TYPE_TOUCH, accelValues);
+<span class="fc" id="L114">            updateMetadata(metadata);</span>
+<span class="fc" id="L115">            schedulePersisting();</span>
+        }
+<span class="fc" id="L117">        lastTap = tapTime;</span>
+<span class="fc" id="L118">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span>Generated by the Android Gradle plugin 2.3.0</div></body></html>

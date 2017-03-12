@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>CompatCameraHandler.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">de.pcc.privacycrashcam.applicationlogic.camera</a> &gt; <span class="el_source">CompatCameraHandler.java</span></div><h1>CompatCameraHandler.java</h1><pre class="source lang-java linenums">package de.pcc.privacycrashcam.applicationlogic.camera;
+
+import android.content.Context;
+import android.hardware.Camera;
+import android.media.CamcorderProfile;
+import android.media.MediaRecorder;
+import android.support.annotation.Nullable;
+import android.util.Log;
+import android.view.Display;
+import android.view.Surface;
+import android.view.SurfaceView;
+import android.view.WindowManager;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.List;
+
+import de.pcc.privacycrashcam.R;
+import de.pcc.privacycrashcam.data.Metadata;
+import de.pcc.privacycrashcam.data.Settings;
+import de.pcc.privacycrashcam.data.Video;
+import de.pcc.privacycrashcam.data.memoryaccess.MemoryManager;
+import de.pcc.privacycrashcam.utils.dataprocessing.AsyncPersistor;
+import de.pcc.privacycrashcam.utils.dataprocessing.PersistCallback;
+import de.pcc.privacycrashcam.utils.datastructures.VideoRingBuffer;
+
+import static android.content.Context.WINDOW_SERVICE;
+
+/**
+ * Camera handler which uses the old Camera API. Handles access to the camera, displaying the
+ * preview and writing the buffer. Also manages persisting the buffer's content.
+ *
+ * @author Giorgio Gross
+ */
+@SuppressWarnings(&quot;deprecation&quot;)
+public class CompatCameraHandler extends CameraHandler implements MediaRecorder.OnInfoListener {
+    private final static String TAG = &quot;CMP_CAM_HANDLER&quot;;
+    private final static int VIDEO_CHUNK_LENGTH = 5; // length of video chunks in seconds
+
+<span class="fc" id="L41">    private Camera camera = null;</span>
+<span class="fc" id="L42">    private CamcorderProfile camcorderProfile = null;</span>
+<span class="fc" id="L43">    private MediaRecorder mediaRecorder = null;</span>
+
+<span class="fc" id="L45">    private boolean isHandlerRunning = false;</span>
+<span class="fc" id="L46">    private boolean isRecording = false;</span>
+<span class="fc" id="L47">    private boolean canOperate = true;</span>
+
+    private Context context;
+    private SurfaceView previewView;
+
+    private Settings settings;
+    private Metadata metadata;
+    private MemoryManager memoryManager;
+
+    private RecordCallback recordCallback;
+    private File currentOutputFile;
+    private VideoRingBuffer videoRingBuffer;
+
+    private PersistCallback persistCallback;
+
+    /**
+     * Creates a new camera handler with the passed parameters and sets up callbacks, camera, media
+     * recorder and buffer.
+     *
+     * @param context        application context
+     * @param previewView    view to be used as preview for the camera
+     * @param recordCallback callback to be notified about recording state
+     */
+    public CompatCameraHandler(Context context, SurfaceView previewView,
+<span class="fc" id="L71">                               RecordCallback recordCallback) {</span>
+<span class="fc" id="L72">        this.context = context;</span>
+<span class="fc" id="L73">        this.previewView = previewView;</span>
+<span class="fc" id="L74">        this.recordCallback = recordCallback;</span>
+
+        // get notified about state changes during persisting a video
+<span class="fc" id="L77">        this.persistCallback = new PersistCallback() {</span>
+            @Override
+            public void onPersistingStarted() {
+                // update UI
+<span class="fc" id="L81">                CompatCameraHandler.this.recordCallback.onRecordingStopped();</span>
+
+                // save current file and set up new one
+<span class="fc" id="L84">                forceStopMediaRecorder();</span>
+                // use new memory manager to access new temp directory
+<span class="fc" id="L86">                memoryManager = new MemoryManager(CompatCameraHandler.this.context);</span>
+                // use new ring buffer to avoid conflicts
+                try {
+<span class="fc" id="L89">                    setUpBuffer();</span>
+<span class="nc" id="L90">                } catch (FileNotFoundException e) {</span>
+<span class="nc" id="L91">                    e.printStackTrace();</span>
+<span class="nc" id="L92">                    pauseHandler();</span>
+<span class="nc" id="L93">                    return;</span>
+<span class="fc" id="L94">                }</span>
+                // restart media recorder to force the use of a new file
+<span class="fc" id="L96">                restartMediaRecorder();</span>
+<span class="fc" id="L97">            }</span>
+
+            @Override
+            public void onPersistingStopped(boolean success) {
+<span class="nc bnc" id="L101" title="All 2 branches missed.">                if (!success) CompatCameraHandler.this.recordCallback.onError(</span>
+<span class="nc" id="L102">                        CompatCameraHandler.this.context.getString(R.string.error_recorder));</span>
+
+                // allow user to save new video (Multiple async tasks are not allowed to run)
+<span class="nc" id="L105">                isRecording = false;</span>
+<span class="nc" id="L106">            }</span>
+        };
+<span class="fc" id="L108">    }</span>
+
+    private void setUpBuffer() throws FileNotFoundException {
+        // +1 capacity to record at least the desired video length
+<span class="fc" id="L112">        int bufferCapacity = settings.getBufferSizeSec() / VIDEO_CHUNK_LENGTH + 1;</span>
+
+<span class="fc" id="L114">        File someTempFile = memoryManager.getTempVideoFile();</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">        if (someTempFile == null) throw new FileNotFoundException();</span>
+<span class="fc" id="L116">        this.videoRingBuffer = new VideoRingBuffer(bufferCapacity,</span>
+<span class="fc" id="L117">                someTempFile.getParentFile(), Video.SUFFIX);</span>
+<span class="fc" id="L118">    }</span>
+
+    /**
+     * Sets all presets and settings applying to the camcorder profile. Camcorder profile needs to
+     * be set up only once and can be reused later.
+     */
+    private void setUpCamcorderProfile() {
+<span class="fc" id="L125">        camcorderProfile = CamcorderProfile.get(settings.getQuality());</span>
+
+        // Set camcorder profile's video width, height, fps which will be applied to the
+        // mediaRecorder by MediaRecorder.setProfile(..);
+<span class="fc" id="L129">        camcorderProfile.fileFormat = MediaRecorder.OutputFormat.MPEG_4;</span>
+<span class="fc" id="L130">    }</span>
+
+    /**
+     * Sets up the camera with respect to the user's settings
+     */
+    private boolean prepareCamera() {
+<span class="fc" id="L136">        Log.d(TAG, &quot;preparing camera&quot;);</span>
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">        if (!CameraHelper.hasCameraHardware(context)) {</span>
+<span class="nc" id="L138">            recordCallback.onError(context.getResources().getString(R.string.error_no_camera));</span>
+<span class="nc" id="L139">            return false;</span>
+        }
+
+        // set up camera
+<span class="fc" id="L143">        camera = getCameraInstance();</span>
+<span class="fc" id="L144">        Log.d(TAG, &quot;cam instance &quot; + camera);</span>
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">        if (camera == null) {</span>
+            // camera was not available
+<span class="nc" id="L147">            recordCallback.onError(context.getResources().</span>
+<span class="nc" id="L148">                    getString(R.string.error_camera_unavailable));</span>
+<span class="nc" id="L149">            return false;</span>
+        }
+
+        // set up camera parameters
+<span class="fc" id="L153">        Camera.Parameters cameraParameters = camera.getParameters();</span>
+
+        // choose suitable fps rate
+<span class="fc" id="L156">        int desiredFps = settings.getFps();</span>
+<span class="fc" id="L157">        List&lt;int[]&gt; fpsRanges = cameraParameters.getSupportedPreviewFpsRange();</span>
+<span class="fc" id="L158">        camcorderProfile.videoFrameRate = (int) Math.floor((double) fpsRanges.get(0)[Camera.Parameters.PREVIEW_FPS_MAX_INDEX] / (double) 1000);</span>
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">        for (int[] range : fpsRanges) {</span>
+<span class="fc" id="L160">            int min = (int) Math.ceil((double) range[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / (double) 1000);</span>
+<span class="fc" id="L161">            int max = (int) Math.floor((double) range[Camera.Parameters.PREVIEW_FPS_MAX_INDEX] / (double) 1000);</span>
+<span class="pc bpc" id="L162" title="2 of 4 branches missed.">            if (min &lt;= desiredFps &amp;&amp; max &gt;= desiredFps) {</span>
+<span class="fc" id="L163">                camcorderProfile.videoFrameRate = desiredFps;</span>
+<span class="fc" id="L164">                break;</span>
+            }
+<span class="nc" id="L166">        }</span>
+
+        // choose best video preview size
+<span class="fc" id="L169">        List&lt;Camera.Size&gt; mSupportedPreviewSizes = cameraParameters.getSupportedPreviewSizes();</span>
+<span class="fc" id="L170">        List&lt;Camera.Size&gt; mSupportedVideoSizes = cameraParameters.getSupportedVideoSizes();</span>
+
+        // pay attention to screen orientation
+<span class="fc" id="L173">        Camera.CameraInfo info = CameraHelper.getDefaultBackFacingCameraInfo();</span>
+<span class="fc" id="L174">        Display display = ((WindowManager) context.getSystemService(WINDOW_SERVICE))</span>
+<span class="fc" id="L175">                .getDefaultDisplay();</span>
+        Camera.Size optimalSize;
+<span class="fc" id="L177">        int deviceAngle = 0;</span>
+<span class="pc bpc" id="L178" title="4 of 5 branches missed.">        switch (display.getRotation()) {</span>
+            case Surface.ROTATION_0:
+<span class="fc" id="L180">                optimalSize = CameraHelper.getOptimalVideoSize(mSupportedVideoSizes,</span>
+<span class="fc" id="L181">                        mSupportedPreviewSizes, previewView.getWidth(), previewView.getHeight());</span>
+<span class="fc" id="L182">                cameraParameters.setPreviewSize(optimalSize.width, optimalSize.height);</span>
+<span class="fc" id="L183">                deviceAngle = 0;</span>
+<span class="fc" id="L184">                break;</span>
+            case Surface.ROTATION_90:
+<span class="nc" id="L186">                optimalSize = CameraHelper.getOptimalVideoSize(mSupportedVideoSizes,</span>
+<span class="nc" id="L187">                        mSupportedPreviewSizes, previewView.getHeight(), previewView.getWidth());</span>
+<span class="nc" id="L188">                cameraParameters.setPreviewSize(optimalSize.width, optimalSize.height);</span>
+<span class="nc" id="L189">                deviceAngle = 90;</span>
+<span class="nc" id="L190">                break;</span>
+            case Surface.ROTATION_180:
+<span class="nc" id="L192">                optimalSize = CameraHelper.getOptimalVideoSize(mSupportedVideoSizes,</span>
+<span class="nc" id="L193">                        mSupportedPreviewSizes, previewView.getWidth(), previewView.getHeight());</span>
+<span class="nc" id="L194">                cameraParameters.setPreviewSize(optimalSize.width, optimalSize.height);</span>
+<span class="nc" id="L195">                deviceAngle = 180;</span>
+<span class="nc" id="L196">                break;</span>
+            case Surface.ROTATION_270:
+<span class="nc" id="L198">                optimalSize = CameraHelper.getOptimalVideoSize(mSupportedVideoSizes,</span>
+<span class="nc" id="L199">                        mSupportedPreviewSizes, previewView.getHeight(), previewView.getWidth());</span>
+<span class="nc" id="L200">                cameraParameters.setPreviewSize(optimalSize.width, optimalSize.height);</span>
+<span class="nc" id="L201">                deviceAngle = 270;</span>
+                break;
+        }
+<span class="fc" id="L204">        camera.setDisplayOrientation((info.orientation - deviceAngle + 360) % 360);</span>
+<span class="fc" id="L205">        camera.setParameters(cameraParameters);</span>
+
+        try {
+<span class="fc" id="L208">            camera.setPreviewDisplay(previewView.getHolder());</span>
+<span class="fc" id="L209">            camera.startPreview();</span>
+<span class="nc" id="L210">        } catch (IOException e) {</span>
+<span class="nc" id="L211">            Log.d(TAG, &quot;Error setting camera preview: &quot; + e.getMessage());</span>
+<span class="nc" id="L212">            e.printStackTrace();</span>
+            // Do not send error message to UI.
+            // We might be experiencing a bug if we reach this part.
+<span class="nc" id="L215">            return false;</span>
+<span class="fc" id="L216">        }</span>
+<span class="fc" id="L217">        return true;</span>
+    }
+
+    /**
+     * Get an instance of the Camera object.
+     *
+     * @return the camera or null if the camera is unavailable
+     */
+    @Nullable
+    private Camera getCameraInstance() {
+<span class="pc bpc" id="L227" title="1 of 2 branches missed.">        if (camera != null) return camera;</span>
+        // returns null if camera is unavailable
+<span class="fc" id="L229">        return CameraHelper.getDefaultBackFacingCameraInstance();</span>
+    }
+
+    /**
+     * Stops the preview and releases the camera so that other applications can use it.
+     */
+    private void releaseCamera() {
+<span class="fc" id="L236">        Log.d(TAG, &quot;releasing camera&quot;);</span>
+<span class="fc bfc" id="L237" title="All 2 branches covered.">        if (camera == null) return;</span>
+
+<span class="fc" id="L239">        camera.stopPreview();</span>
+<span class="fc" id="L240">        camera.release();</span>
+<span class="fc" id="L241">        camera = null;</span>
+<span class="fc" id="L242">    }</span>
+
+    /**
+     * Sets up the media recorder with respect to the user's settings
+     */
+    private boolean prepareMediaRecorder() {
+        // MutedMediaRecorder(); is not suitable for some devices
+<span class="fc" id="L249">        mediaRecorder = new MediaRecorder();</span>
+
+<span class="fc" id="L251">        camera.unlock();</span>
+<span class="fc" id="L252">        mediaRecorder.setCamera(camera);</span>
+
+<span class="fc" id="L254">        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);</span>
+<span class="fc" id="L255">        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);</span>
+<span class="fc" id="L256">        mediaRecorder.setProfile(camcorderProfile);</span>
+
+        // get new file and add it to buffer and media recorder
+<span class="fc" id="L259">        currentOutputFile = memoryManager.getTempVideoFile();</span>
+<span class="pc bpc" id="L260" title="1 of 2 branches missed.">        if (currentOutputFile == null)</span>
+<span class="nc" id="L261">            return false;</span>
+<span class="fc" id="L262">        mediaRecorder.setOutputFile(currentOutputFile.getPath());</span>
+
+<span class="fc" id="L264">        mediaRecorder.setMaxDuration(VIDEO_CHUNK_LENGTH * 1000);</span>
+<span class="fc" id="L265">        mediaRecorder.setOrientationHint(90);</span>
+<span class="fc" id="L266">        mediaRecorder.setOnInfoListener(this);</span>
+
+        try {
+            // this can be put in an async task if performance turns out to be poor
+<span class="fc" id="L270">            mediaRecorder.prepare();</span>
+<span class="fc" id="L271">            Log.d(TAG, &quot;Media Recorder is prepared&quot;);</span>
+<span class="nc" id="L272">        } catch (IOException e) {</span>
+<span class="nc" id="L273">            e.printStackTrace();</span>
+<span class="nc" id="L274">            recordCallback.onError(context.getResources().getString(R.string.error_recorder));</span>
+<span class="nc" id="L275">            return false;</span>
+<span class="nc" id="L276">        } catch (IllegalStateException e) {</span>
+<span class="nc" id="L277">            e.printStackTrace();</span>
+<span class="nc" id="L278">            recordCallback.onError(context.getResources().getString(R.string.error_undefined));</span>
+<span class="nc" id="L279">            pauseHandler();</span>
+<span class="nc" id="L280">            return false;</span>
+<span class="fc" id="L281">        }</span>
+<span class="fc" id="L282">        return true;</span>
+    }
+
+    /**
+     * Releases the media recorder and locks the camera
+     */
+    private void releaseMediaRecorder() {
+<span class="fc bfc" id="L289" title="All 2 branches covered.">        if (mediaRecorder != null) {</span>
+            // Clear recorder configuration.
+<span class="fc" id="L291">            mediaRecorder.reset();</span>
+            // Release the recorder object
+<span class="fc" id="L293">            mediaRecorder.release();</span>
+<span class="fc" id="L294">            mediaRecorder = null;</span>
+        }
+<span class="fc bfc" id="L296" title="All 2 branches covered.">        if (camera != null) {</span>
+<span class="fc" id="L297">            Log.d(TAG, &quot;LOCKING CAMERA&quot;);</span>
+<span class="fc" id="L298">            camera.lock();</span>
+        }
+<span class="fc" id="L300">    }</span>
+
+    /**
+     * Starts recording and writing into buffer
+     *
+     * @return true if starting succeeded
+     */
+    private boolean startRecordingChunk() {
+        try {
+<span class="nc" id="L309">            mediaRecorder.start();</span>
+<span class="fc" id="L310">        } catch (RuntimeException e) {</span>
+            // On some devices this exception is unexpectedly thrown when the user selected a
+            // certain fps value. The catch block will make sure that our app doesn't bother
+            // other apps if it crashes as we ensure by this routine to release the camera on crash
+<span class="fc" id="L314">            e.printStackTrace();</span>
+<span class="fc" id="L315">            pauseHandler();</span>
+<span class="fc" id="L316">            recordCallback.onError(context.getResources().getString((R.string.error_undefined)));</span>
+<span class="fc" id="L317">            return false;</span>
+<span class="nc" id="L318">        }</span>
+
+<span class="nc" id="L320">        return true;</span>
+    }
+
+    /**
+     * Stops recording and writing into buffer
+     */
+    private void stopRecordingChunk() throws IllegalStateException {
+<span class="pc bpc" id="L327" title="1 of 2 branches missed.">        if (mediaRecorder != null) mediaRecorder.stop();</span>
+<span class="fc" id="L328">    }</span>
+
+    @Override
+    public void createHandler() {
+<span class="fc" id="L332">        super.createHandler();</span>
+<span class="fc" id="L333">        this.memoryManager = new MemoryManager(context);</span>
+
+        // clean up all temporary data which was not deleted when exiting the app. This happens
+        // sometimes as onDestroy of the Activity is not called and we have no other option left
+        // to get notified when the app is closed.
+<span class="fc" id="L338">        memoryManager.deleteAllTempData();</span>
+
+        // Load and apply settings
+<span class="fc" id="L341">        this.settings = memoryManager.getSettings();</span>
+        try {
+<span class="fc" id="L343">            setUpBuffer();</span>
+<span class="nc" id="L344">        } catch (FileNotFoundException e) {</span>
+<span class="nc" id="L345">            recordCallback.onError(context.getResources().getString(R.string.error_memory));</span>
+<span class="nc" id="L346">            canOperate = false;</span>
+<span class="fc" id="L347">        }</span>
+<span class="fc" id="L348">        setUpCamcorderProfile();</span>
+
+        // avoid NPE's if a client forgets to set the metadata
+<span class="fc" id="L351">        this.metadata = new Metadata();</span>
+<span class="fc" id="L352">    }</span>
+
+    @Override
+    public void resumeHandler() {
+<span class="fc" id="L356">        super.resumeHandler();</span>
+<span class="pc bpc" id="L357" title="2 of 4 branches missed.">        if (!canOperate || isHandlerRunning) return;</span>
+
+        // take care of setting up camera, media recorder and recording
+<span class="pc bpc" id="L360" title="3 of 6 branches missed.">        if (!prepareCamera() || !prepareMediaRecorder() || !startRecordingChunk()) {</span>
+<span class="fc" id="L361">            pauseHandler();</span>
+<span class="fc" id="L362">            return;</span>
+        }
+<span class="nc" id="L364">        isHandlerRunning = true;</span>
+<span class="nc" id="L365">    }</span>
+
+    @Override
+    public void schedulePersisting() {
+        // don't start recording if we already record
+<span class="fc bfc" id="L370" title="All 2 branches covered.">        if (isRecording) return;</span>
+<span class="fc" id="L371">        isRecording = true;</span>
+
+<span class="fc" id="L373">        recordCallback.onRecordingStarted();</span>
+
+        // create async task to persist the buffer
+<span class="fc" id="L376">        AsyncPersistor mPersistor = new AsyncPersistor(videoRingBuffer, memoryManager,</span>
+                persistCallback, context);
+<span class="fc" id="L378">        mPersistor.execute(metadata);</span>
+<span class="fc" id="L379">    }</span>
+
+
+    @Override
+    public void updateMetadata(Metadata metadata) {
+<span class="fc" id="L384">        this.metadata = metadata;</span>
+<span class="fc" id="L385">    }</span>
+
+    @Override
+    public void pauseHandler() {
+<span class="fc" id="L389">        super.pauseHandler();</span>
+<span class="pc bpc" id="L390" title="1 of 2 branches missed.">        if (isHandlerRunning) {</span>
+            // take care of stopping recording
+<span class="nc" id="L392">            forceStopMediaRecorder();</span>
+        }
+<span class="fc" id="L394">        isHandlerRunning = false;</span>
+        // take care of stopping preview
+<span class="fc" id="L396">        releaseMediaRecorder();</span>
+<span class="fc" id="L397">        releaseCamera();</span>
+<span class="fc" id="L398">    }</span>
+
+    @Override
+    public void destroyHandler() {
+<span class="fc" id="L402">        super.destroyHandler();</span>
+<span class="fc" id="L403">        tearDownBuffer();</span>
+<span class="fc" id="L404">        memoryManager.deleteCurrentTempData();</span>
+<span class="fc" id="L405">    }</span>
+
+    private void tearDownBuffer() {
+<span class="fc" id="L408">        videoRingBuffer.destroy();</span>
+<span class="fc" id="L409">    }</span>
+
+    @Override
+    public void onInfo(MediaRecorder mr, int what, int extra) {
+        // Video is saved automatically, no need to call stopRecordingChunk() here.
+<span class="fc" id="L414">        videoRingBuffer.put(currentOutputFile);</span>
+        // Just clean up last recording and restart recording
+<span class="fc" id="L416">        restartMediaRecorder();</span>
+<span class="fc" id="L417">    }</span>
+
+    /**
+     * Stops the media recorder and inserts the file into the ring buffer. If this is called in an
+     * invalid state (e.g. immediately after starting the media recorder) the output file will be
+     * deleted.
+     */
+    @SuppressWarnings(&quot;ResultOfMethodCallIgnored&quot;)
+    private void forceStopMediaRecorder() {
+        try {
+<span class="fc" id="L427">            stopRecordingChunk(); // try to stop recording BEFORE inserting file into buffer</span>
+<span class="fc" id="L428">            videoRingBuffer.put(currentOutputFile);</span>
+<span class="nc" id="L429">        } catch (RuntimeException re) {</span>
+            // No valid data was recorded as MediaRecorder.stop() was called before or right after
+            // MediaRecorder.start(). Remove the incomplete file from the buffer and delete it;
+            // a new one will be allocated as soon as the Handler is resumed
+<span class="nc bnc" id="L433" title="All 4 branches missed.">            if (currentOutputFile != null &amp;&amp; currentOutputFile.exists()) currentOutputFile.delete();</span>
+<span class="nc" id="L434">            re.printStackTrace();</span>
+<span class="fc" id="L435">        }</span>
+<span class="fc" id="L436">    }</span>
+
+    /**
+     * Restarts the media recorder.
+     */
+    private void restartMediaRecorder() {
+        // Maybe we will need to synchronize this method. (Calls to this method will be made in a
+        // non predictable manner). Tough, all calls are stable and can be called safely in any
+        // state but we might get some warnings.
+<span class="pc bpc" id="L445" title="1 of 2 branches missed.">        if (!isHandlerRunning) return;</span>
+<span class="nc" id="L446">        releaseMediaRecorder();</span>
+        // start recording new chunk
+<span class="nc bnc" id="L448" title="All 4 branches missed.">        if (!prepareMediaRecorder() || !startRecordingChunk()) { // will allocate also a new output file</span>
+<span class="nc" id="L449">            pauseHandler();</span>
+        }
+<span class="nc" id="L451">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span>Generated by the Android Gradle plugin 2.3.0</div></body></html>

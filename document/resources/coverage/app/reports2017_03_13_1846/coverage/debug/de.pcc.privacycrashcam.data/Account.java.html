@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Account.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">de.pcc.privacycrashcam.data</a> &gt; <span class="el_source">Account.java</span></div><h1>Account.java</h1><pre class="source lang-java linenums">package de.pcc.privacycrashcam.data;
+
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+/**
+ * Datacontainer for data concerning user accounts. Used to bundle the necessary information.
+ *
+ * @author David Laubenstein, Josh Romanowski
+ */
+
+public class Account {
+
+    /**
+     * Tag used for logging.
+     */
+<span class="fc" id="L19">    private final static String TAG = Account.class.getName();</span>
+
+    public final static String ACCOUNT_MAIN_KEY = &quot;ACCOUNT&quot;;
+    // JSON keys
+    public final static String JSON_KEY_MAIL = &quot;mail&quot;;
+    public final static String JSON_KEY_PASSWORD = &quot;password&quot;;
+
+    /* #############################################################################################
+     *                                  attributes
+     * ###########################################################################################*/
+
+    /**
+     * E-mail address of the user
+     */
+    private String mail;
+    /**
+     * Password of the user.
+     */
+    private String password;
+
+    /* #############################################################################################
+     *                                  constructors
+     * ###########################################################################################*/
+
+    /**
+     * constructor, which creates an account object with mail and password
+     * @param mail represents the account mail
+     * @param password represents the account password
+     */
+<span class="fc" id="L48">    public Account(String mail, String password) {</span>
+<span class="fc" id="L49">        this.mail = mail;</span>
+<span class="fc" id="L50">        this.password = password;</span>
+<span class="fc" id="L51">    }</span>
+
+    /**
+     * constructor, which excludes mail and password from json and
+     * assign them to the class variables
+     * @param json is a JSON String, with all information inside
+     */
+<span class="fc" id="L58">    public Account(String json) throws JSONException {</span>
+<span class="fc" id="L59">        JSONObject account = new JSONObject(json);</span>
+
+        // retrieve json data
+<span class="fc" id="L62">        this.mail = account.getString(JSON_KEY_MAIL);</span>
+<span class="fc" id="L63">        this.password = account.getString(JSON_KEY_PASSWORD);</span>
+
+<span class="fc" id="L65">    }</span>
+
+    /* #############################################################################################
+     *                                  methods
+     * ###########################################################################################*/
+
+    /**
+     * Creates a JSON string out of the mail and password of the user.
+     *
+     * @return JSON String with account information inside
+     */
+    public String getAsJSON() {
+        try {
+<span class="fc" id="L78">            JSONObject json = new JSONObject(&quot;{}&quot;);</span>
+<span class="fc" id="L79">            json.put(JSON_KEY_MAIL, this.mail);</span>
+<span class="fc" id="L80">            json.put(JSON_KEY_PASSWORD, this.password);</span>
+<span class="fc" id="L81">            return json.toString();</span>
+<span class="nc" id="L82">        } catch (JSONException e) {</span>
+<span class="nc" id="L83">            Log.w(TAG, &quot;Error creating account json&quot;);</span>
+        }
+<span class="nc" id="L85">        return null;</span>
+    }
+
+    /* #############################################################################################
+     *                                  getter/ setter
+     * ###########################################################################################*/
+
+    public String getMail() {
+<span class="fc" id="L93">        return mail;</span>
+    }
+
+    public void setMail(String mail) {
+<span class="nc" id="L97">        this.mail = mail;</span>
+<span class="nc" id="L98">    }</span>
+
+    public String getPassword() {
+<span class="fc" id="L101">        return password;</span>
+    }
+
+    public void setPassword(String password) {
+<span class="nc" id="L105">        this.password = password;</span>
+<span class="nc" id="L106">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span>Generated by the Android Gradle plugin 2.3.0</div></body></html>

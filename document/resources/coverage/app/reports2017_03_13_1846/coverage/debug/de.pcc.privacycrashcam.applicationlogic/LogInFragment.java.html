@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>LogInFragment.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">de.pcc.privacycrashcam.applicationlogic</a> &gt; <span class="el_source">LogInFragment.java</span></div><h1>LogInFragment.java</h1><pre class="source lang-java linenums">package de.pcc.privacycrashcam.applicationlogic;
+
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
+
+import de.pcc.privacycrashcam.R;
+import de.pcc.privacycrashcam.data.Account;
+import de.pcc.privacycrashcam.data.memoryaccess.MemoryManager;
+import de.pcc.privacycrashcam.data.serverconnection.AuthenticationState;
+import de.pcc.privacycrashcam.data.serverconnection.ServerHelper;
+import de.pcc.privacycrashcam.data.serverconnection.ServerProxy;
+import de.pcc.privacycrashcam.data.serverconnection.ServerResponseCallback;
+import de.pcc.privacycrashcam.gui.CameraActivity;
+
+/**
+ * Shows the log in fragment.
+ *
+ * @author Giorgio Gross, David Laubenstein
+ */
+<span class="nc" id="L31">public class LogInFragment extends Fragment {</span>
+
+    private final static String URL_REGISTER = ServerHelper.HOST + &quot;:9999&quot;;
+
+    private EditText et_mail;
+    private EditText et_password;
+    private ProgressBar loginProgress;
+    private Button login;
+    private Button register;
+
+<span class="nc" id="L41">    private View.OnClickListener mRegisterListener = new View.OnClickListener() {</span>
+        @Override
+        public void onClick(View v) {
+<span class="nc" id="L44">            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL_REGISTER));</span>
+<span class="nc" id="L45">            startActivity(browserIntent);</span>
+<span class="nc" id="L46">        }</span>
+
+    };
+
+<span class="nc" id="L50">    private View.OnClickListener mLogInistener = new View.OnClickListener() {</span>
+
+        @Override
+        public void onClick(View v) {
+<span class="nc" id="L54">            toggleVisibility(login, loginProgress);</span>
+
+<span class="nc" id="L56">            final String mail = et_mail.getText().toString();</span>
+<span class="nc" id="L57">            final String pw = et_password.getText().toString();</span>
+<span class="nc" id="L58">            Account account = new Account(mail, pw);</span>
+
+<span class="nc" id="L60">            ServerResponseCallback&lt;AuthenticationState&gt; mCallback</span>
+<span class="nc" id="L61">                    = new ServerResponseCallback&lt;AuthenticationState&gt;() {</span>
+                @Override
+                public void onResponse(AuthenticationState response) {
+<span class="nc bnc" id="L64" title="All 6 branches missed.">                    switch (response) {</span>
+                        case SUCCESS:
+<span class="nc" id="L66">                            LogInHelper.SaveAccountData(mail, pw, getContext());</span>
+<span class="nc" id="L67">                            CameraActivity.Launch(getActivity());</span>
+<span class="nc" id="L68">                            getActivity().finish();</span>
+<span class="nc" id="L69">                            break;</span>
+                        case FAILURE_MISMATCH:
+<span class="nc" id="L71">                            Toast.makeText(getContext(), &quot;Mail and password are not matching&quot;,</span>
+<span class="nc" id="L72">                                    Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L73">                            toggleVisibility(login, loginProgress);</span>
+<span class="nc" id="L74">                            break;</span>
+                        case NOT_VERIFIED:
+<span class="nc" id="L76">                            Toast.makeText(getContext(), &quot;Account not verified&quot;,</span>
+<span class="nc" id="L77">                                    Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L78">                            toggleVisibility(login, loginProgress);</span>
+<span class="nc" id="L79">                            break;</span>
+                        case FAILURE_MISSING:
+<span class="nc" id="L81">                            Toast.makeText(getContext(), &quot;Account not existing&quot;,</span>
+<span class="nc" id="L82">                                    Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L83">                            toggleVisibility(login, loginProgress);</span>
+<span class="nc" id="L84">                            break;</span>
+                        case FAILURE_OTHER:
+<span class="nc" id="L86">                            Toast.makeText(getContext(), &quot;Account error!&quot;,</span>
+<span class="nc" id="L87">                                    Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L88">                            toggleVisibility(login, loginProgress);</span>
+<span class="nc" id="L89">                            break;</span>
+                        default:
+<span class="nc" id="L91">                            Toast.makeText(getContext(), getString(R.string.error_no_connection),</span>
+<span class="nc" id="L92">                                    Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L93">                            toggleVisibility(login, loginProgress);</span>
+                            break;
+                    }
+<span class="nc" id="L96">                }</span>
+
+                @Override
+                public void onProgress(int percent) {
+                    // ignore this case
+<span class="nc" id="L101">                }</span>
+
+                @Override
+                public void onError(String error) {
+<span class="nc" id="L105">                    Toast.makeText(getContext(), getString(R.string.error_no_connection),</span>
+<span class="nc" id="L106">                            Toast.LENGTH_SHORT).show();</span>
+<span class="nc" id="L107">                    toggleVisibility(login, loginProgress);</span>
+<span class="nc" id="L108">                }</span>
+            };
+<span class="nc" id="L110">            new ServerProxy(getContext()).authenticateUser(account, mCallback);</span>
+<span class="nc" id="L111">        }</span>
+    };
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        // get the main layout describing the content
+<span class="nc" id="L118">        RelativeLayout base = (RelativeLayout) inflater.inflate(R.layout.content_login, container, false);</span>
+
+        // init view components
+<span class="nc" id="L121">        et_mail = (EditText) base.findViewById(R.id.et_mail);</span>
+<span class="nc" id="L122">        et_password = (EditText) base.findViewById(R.id.et_password);</span>
+<span class="nc" id="L123">        loginProgress = (ProgressBar) base.findViewById(R.id.pb_login);</span>
+<span class="nc" id="L124">        login = (Button) base.findViewById(R.id.b_login);</span>
+<span class="nc" id="L125">        login.setOnClickListener(mLogInistener);</span>
+
+<span class="nc" id="L127">        register = (Button) base.findViewById(R.id.b_register);</span>
+<span class="nc" id="L128">        register.setOnClickListener(mRegisterListener);</span>
+<span class="nc" id="L129">        return base;</span>
+    }
+
+    private void toggleVisibility(Button button, ProgressBar progressBar) {
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (button.getVisibility() == View.VISIBLE) {</span>
+<span class="nc" id="L134">            button.setVisibility(View.INVISIBLE);</span>
+<span class="nc" id="L135">            progressBar.setVisibility(View.VISIBLE);</span>
+        } else {
+<span class="nc" id="L137">            button.setVisibility(View.VISIBLE);</span>
+<span class="nc" id="L138">            progressBar.setVisibility(View.INVISIBLE);</span>
+        }
+<span class="nc" id="L140">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span>Generated by the Android Gradle plugin 2.3.0</div></body></html>
