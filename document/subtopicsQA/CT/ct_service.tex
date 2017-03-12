@@ -2,12 +2,42 @@
 \hline
   \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
   \hline
+  createSaltTest() & Überprüft die korrekte Erstellung des Salzes & true \\
+  \hline
+  changeTest() & Testet die Änderung der Accountdaten & true \\
+  \hline
+  registerTest() & Registriert einen User und überprüft die korrekte Erstellung & true \\
+  \hline
+  deleteTest() & Testet die korrekte Löschung eines registrierten Accounts & true \\
+  \hline
+  accountIdTest() & Vergleicht die Account-Id des Account Objektes mit dem dazugehörigem Wert in der Datenbank & true \\
+  \hline
+  authenticateTest() &  Authentifizierungstest eines bereits registrierten Accounts & true \\
+  \hline
+  verifyTest() & Durchläuft einen Verifizierungsvorgang eines Accounts & true \\
+  \hline
+  isVerifiedValidTest() & Überprüft ob einen bereits verifizierten Account verifiziert ist & true \\
+  \hline
+  isVerifiedFalseTest() & Überprüft ob ein nicht verifizierter Account verifiziert ist & false \\
+  \hline
+  invalidMailTest() & Testet die Überprüfung einer invaliden Mailadresse & false \\
+  \hline
+  blankMailTest() & Testet die Überprüfung einer leeren Mailadresse & false \\
+  \hline
   \caption{AccountManagerTest}
  \end{longtable}
  
  \begin{longtable}{p{.23\textwidth} | p{.55\textwidth} | p{.12\textwidth}}
 \hline
   \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+  \hline
+  videoInfoListTest() & Überprüft die korrekte Ausgabe der VideoInfoList & true \\
+  \hline
+  downloadTest() & Durchläuft einen Downloadvorgang und überprüft dabei ob ein Inputstream ankommt, mit dem dann eine Testdatei angelegt wird & true \\
+  \hline
+  deleteTest() & Legt eine Video und Metadata Datei an, die über den Testverlauf gelöscht werden sollen & true \\ 
+  \hline
+  metadataTest() & Testet die Korrektheit  der Metadateninfomationen, welche über den Klienten angefragt werden & true \\
   \hline
   \caption{VideoManagerTest}
  \end{longtable}

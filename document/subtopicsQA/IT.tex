@@ -1,6 +1,3 @@
 \section{Integration-Tests}
 
-\subsection{App/Webservice}
-\input{./subtopicsQA/IT/it_app_service}
-\subsection{Webinterface/Webservice}
-\input{./subtopicsQA/IT/it_interface_service}
+Die Integration-Tests sind alle über den ServerProxyTest im Web-Service abgedeckt. Dabei repräsentiert jede Methode innerhalb dieser Testklasse einen spezifischen Integrationstest. Bei jeder Methode wird eine unterschiedliche Rest-Schnittstellenmethode verwendet und somit überprüft. (TODO: Link zur ServerProxyTest Klasse). Innerhalb dieses Tests werden somit die App zu Web-Service und Web-Interface zu Web-Service Anfragen überprüft. Integrationstest in den jeweiligen beiden anderen Komponenten sind somit überflüssig und wurden nicht umgesetzt.  
