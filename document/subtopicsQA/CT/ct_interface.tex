@@ -1,12 +1,40 @@
 \subsubsection{Automatisierte Tests}
- \begin{longtable}{p{.23\textwidth} | p{.55\textwidth} | p{.12\textwidth}}
+ \begin{longtable}{p{.35\textwidth} | p{.55\textwidth} | p{.10\textwidth}}
 \hline
   \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
   \hline
-  Inhalt & Inhalt & Inhalt\\
+  createAccountTest() & Ruft die Methode createAccount() einmal mit falschem Passwort und einmal mit falscher Mail auf& false\\
   \hline
-  \caption{VideoManagerTest}
+  changeAccountTest() & Ruft die Methode changeAccount() mit leerer Eingabe, falschem Passwort und ungültiger Mail auf & false\\
+  \hline
+  \caption{AccountDataManagerTest}
  \end{longtable}
+ 
+  \begin{longtable}{p{.35\textwidth} | p{.55\textwidth} | p{.10\textwidth}}
+\hline
+  \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+  \hline
+  getVideosTest() & Ruft getVideos() auf, wobei der Serveraufruf gemockt wurde. Am Ende werden die Ergebnisse mit korrekten verglichen & true\\
+  \hline
+  createDownloadResource Test() & Ruft die Methode ceateDownloadResource() auf, wobei der Serveraufruf gemockt wurde. Es wird geprüft ob die Resource dann nicht Null ist & ture\\
+  \hline
+  \caption{VideoDataManagerTest}
+ \end{longtable}
+ 
+   \begin{longtable}{p{.35\textwidth} | p{.55\textwidth} | p{.10\textwidth}}
+\hline
+  \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+  \hline
+  isVailidMailTest() & Ruft die Methode isValidMail() mit einer gültigen Mail Adresse auf & true\\
+  \hline
+  isVaildMailFailTest() & Ruft die Methode isVaildMail() mit einer ungültigen Mail Adresse auf & false\\
+  \hline
+  sendMailTest() & Ruft die Methode sendMail() mit ungültiger Mail Adressse aus & EmailException\\
+  \hline
+  \caption{MailServiceTest}
+ \end{longtable}
+ 
+ 
 \subsubsection{Manuelle Tests}
 
 \begin{longtable}{p{.45\textwidth} | p{.45\textwidth}}
