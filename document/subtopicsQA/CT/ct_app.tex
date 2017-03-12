@@ -90,7 +90,134 @@
   \caption{VideoUploadTaskTest}
  \end{longtable}
  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                    RSAEncryptorTest               %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{longtable}{p{.23\textwidth} | p{.55\textwidth} | p{.12\textwidth}}
+\hline
+  \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+  \hline
+  nullTest() & Prüft ob bei Übergabe von Null ein Fehlschlag zurückgegeben wird & Nicht Verschlüsselt \\
+  \hline
+  validTest() & Überprüft ob eine Datei verschlüsselt und gespeichert wird & Verschlüsselt \\
+  \hline
+  \caption{RSAEncryptorTest}
+ \end{longtable}
  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                    VideoRingBufferTest               %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{longtable}{p{.23\textwidth} | p{.55\textwidth} | p{.12\textwidth}}
+\hline
+  \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+  \hline
+  bufferValidation() & Prüft ob die Kapazität des Buffers dem übergebenen Wert entspricht & Gleiche Kapazität \\
+  \hline
+  putCapacity() & Prüft ob alle eingefügten Dateien ohne überlauf des Buffers gespeichert werden & Dateien vorhanden\\
+  \hline
+  putMoreThan- \newline Capacity() & Prüft ob alle eingefügten Dateien mit überlauf des Buffers gespeichert werden und die Ältesten entfernt werden & Dateien vorhanden\\
+  \hline
+  popCapactity() & Prüft ob Dateien einzeln abgefragt werden können & Dateien abfragbar \\
+  \hline
+  popMoreThan- \newline Capacity() & Prüft ob pop() nach dem leeren des Buffers null zurückgibt & Null zurückgegeben\\
+  \hline
+  destroy() & Prüft ob durch destroy() flushAll() aufgerufen wird & Alle Dateien gelöscht \\
+  \hline
+  flushAll() & Prüft ob durch destroy() alle Dateien gelöscht werden & Alle Dateien gelöscht \\
+  \hline
+  \caption{VideoRingBufferTest}
+ \end{longtable}
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                    AsyncPersistorTest               %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{longtable}{p{.23\textwidth} | p{.55\textwidth} | p{.12\textwidth}}
+\hline
+  \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+   \hline
+   sleepEven() & Prüft ob bei gerader Videolänge die Persistierung zum richtigen Zeitpunkt ausgelöst wird & onPersistingStarted() aufgerufen \\
+   \hline
+   sleepUneven() & Prüft ob bei ungerader Videolänge die Persistierung zum richtigen Zeitpunkt ausgelöst wird & onPersistingStarted() aufgerufen \\
+   \hline
+   waitForUi() & Prüft ob der Persistor vor dem Speichern auf die Bestätigung der UI wartet & onPersistingStopped() nicht aufgerufen \\
+   \hline
+   nonWritable- \newline ReadableMetadata() & Prüft ob die Persistierung abgebrochen wird wenn die ReadableMetadata-Datei nicht beschreibbar ist & Persistierung abgebrochen \\
+  \hline
+   nonWritable- \newline EncryptedMeta() & Prüft ob die Persistierung abgebrochen wird wenn die EncryptedMetadata-Datei nicht beschreibbar ist & Persistierung abgebrochen \\
+  \hline
+   nonWritable- \newline SymmetricKey() & Prüft ob die Persistierung abgebrochen wird wenn die SymmetricKey Datei nicht beschreibbar ist & Persistierung abgebrochen \\
+  \hline
+   noVideoSnippets() & Prüft ob die Persistierung abgebrochen wird wenn keine Video-Stücke übergeben werden & Persistierung abgebrochen \\
+  \hline
+   nonWritableTemp- \newline Video() & Prüft ob die Persistierung abgebrochen wird wenn die temporäre Datei nicht beschreibbar ist & Persistierung abgebrochen \\
+  \hline
+   nonWritable- \newline EncryptedVideo() & Prüft ob die Persistierung abgebrochen wird wenn die Zieldatei nicht beschreibbar ist & Persistierung abgebrochen \\
+  \hline
+   doInBackground() & Prüft ob die Persistierung bei korrekten Daten korrekt abläuft & Persistierung erfolgreich \\
+  \hline
+   onPostExecute() & Prüft ob Ergebnisse des Hintergrundtasks weitergeleitet werden & Persistierung abgebrochen \\
+  \hline
+   nonWritable- \newline EncryptedVideo() & Prüft ob die Persistierung abgebrochen wird wenn keine Metadaten übergeben werden & Persistierung abgebrochen \\
+  \hline
+  \caption{AsyncPersistorTest}
+ \end{longtable}
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                    CompatCameraHandlerLifecycleTest               %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{longtable}{p{.23\textwidth} | p{.55\textwidth} | p{.12\textwidth}}
+\hline
+  \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+   \hline
+   inOrder() & Prüft ob bei richtiger Aufrufreihenfolge keine Exception aufgerufen wird & Keine Fehler \\
+   \hline
+   noLifecycle() & Prüft ob eine IllegalStateException geworfen wird wenn der Lifecycle nicht beachtet wird & Exception geworfen \\
+   \hline
+   resumeBefore- \newline Create() & Prüft ob eine IllegalStateException geworfen wird wenn der Lifecycle nicht beachtet wird & Exception geworfen \\
+   \hline
+   pauseBefore- \newline Create() & Prüft ob eine IllegalStateException geworfen wird wenn der Lifecycle nicht beachtet wird & Exception geworfen \\
+   \hline
+   pauseBefore- \newline Resume() & Prüft ob eine IllegalStateException geworfen wird wenn der Lifecycle nicht beachtet wird & Exception geworfen \\
+   \hline
+   destroyBefore- \newline Create() & Prüft ob eine IllegalStateException geworfen wird wenn der Lifecycle nicht beachtet wird & Exception geworfen \\
+   \hline
+   destroyBefore- \newline Resume() & Prüft ob eine IllegalStateException geworfen wird wenn der Lifecycle nicht beachtet wird & Exception geworfen \\
+   \hline
+  \caption{CompatCameraHandlerLifecycleTest}
+ \end{longtable}
+ 
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                    CompatCameraHandlerTest               %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{longtable}{p{.23\textwidth} | p{.55\textwidth} | p{.12\textwidth}}
+\hline
+  \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+   \hline
+   schedulePersisting() & Prüft ob der Recordcallback über Start und Ende der Aufnahme benachrichtigt wird & Benachrichtigt \\
+   \hline
+   schedulePersisting- \newline Twice() & Prüft ob mehrfache Aufrufe von schedulePersisting() ignoriert werden & Benachrichtigt \\
+   \hline
+   updateMetadata() & Prüft ob der Recordcallback über Start, Ende und Fehler benachrichtigt wird wenn die Metadaten null sind & Benachrichtigt \\
+   \hline
+  \caption{CompatCameraHandlerTest}
+\end{longtable}
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                    CompatCameraHandlerTest               %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{longtable}{p{.23\textwidth} | p{.55\textwidth} | p{.12\textwidth}}
+\hline
+  \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
+   \hline
+   onClickSingle() & Prüft ob die Aufnahme nicht bei einzelnen Touch-Eingaben ausgelöst wird & Nicht ausgelöst \\
+   \hline
+   onClickDelayed() & Prüft ob die Aufnahme nicht bei einzelnen Touch-Eingaben lange nacheinander ausgelöst wird & Nicht ausgelöst \\
+   \hline
+   onClickDouble() & Prüft ob die Aufnahme nicht bei einem Doppelklick ausgelöst wird & Ausgelöst \\
+   \hline
+  \caption{CompatCameraHandlerTest}
+\end{longtable}
                                                       
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                    Your Own                          %
