@@ -4,3 +4,17 @@ Die Testabdeckung in der App festzustellen hat sich schon früh als problematisc
 
 \section{Webinterface}
 Die Funktionalität der Datenmanagerklassen sind mit automatisierten Tests gedeckt. Dadurch wird im Webinterface jedoch nur eine geringe Testüberdeckung durch automatisierte Tests erreicht. Deshalb wurden manuelle Tests, zum Testen der Funktionalität der graphischen Benutzeroberfläche durchgeführt, um eine höhere Überdeckung zu gewährleisten.
+
+\section{Webservice}
+\subsection{data}
+\includegraphics[scale=0.8]{resources/data.jpg}
+Das data-packge beinhaltet die verschiedenen Datenklassen, die Accountdaten sowie Video und Metainformationen beinhalten. Die Testüberdeckung in diesen Klassen geschieht größtenteils durch Tests in anderen packages (Server/Manager Module). Die relevanteste Klasse innerhalb dieses Moduls ist der DatabaseManager. Dieser wurde ausgiebig getestet und überdeckt einen großen Teil der anderen  Klassen.
+\subsection{manager}
+\includegraphics[scale=0.8]{resources/manager.jpg}
+Das manager-package beinhaltet den VideoManager und den AccountManager. Die beiden Tests überdecken den größten Teil beider Klassen. Durch den ServerProxyTest wird nebenbei auch noch ein großer Teil der beiden Manager überdeckt. Der Fokus der Tests lag darauf korrekte Ergebnisse bei korrekten Parametern zu erlangen.
+\subsection{server}
+\includegraphics[scale=0.81]{resources/server.jpg}
+Das service-package beinhaltet den ServerProxy und die Main-Klasse, die in großem Format durch den ServerProxyTest überdeckt sind. Dieser ist Integrations- sowie Komponententest in einem. Der Fokus lag dabei die Rest-Schnittstelle anzusprechen und durch verschiedene Daten und Accounts die Korrektheit der Ergebnisse des ServerProxy zu überprüfen. 
+\subsection{videoprocessing}
+\includegraphics[scale=0.6]{resources/videoprocessing.jpg}
+Das videoprocessing-package beinhaltet die komplette Funktion das Video zu bearbeiten (entschlüsseln, anonymisieren, persistieren). Dabei wurde während des Testens Fokus darauf gelegt, das die komplette Funktionalität sowohl mit korrekten als auch mit fehlerhaften Daten zum gewünschten Ergebnis. 
