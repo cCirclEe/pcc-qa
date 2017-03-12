@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>VideoUploadTask.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">de.pcc.privacycrashcam.data.serverconnection</a> &gt; <span class="el_source">VideoUploadTask.java</span></div><h1>VideoUploadTask.java</h1><pre class="source lang-java linenums">package de.pcc.privacycrashcam.data.serverconnection;
+
+import android.content.Context;
+import android.os.AsyncTask;
+import android.util.Log;
+
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.MultiPart;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
+
+import java.io.File;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import de.pcc.privacycrashcam.data.Account;
+
+/**
+ * Task to asynchronously upload video files of the user. This class already knows hwo to pass the
+ * params to the REST interface, the API method call and how to parse the result.
+ *
+ * @author Fabian Wenzel
+ */
+public class VideoUploadTask extends AsyncTask&lt;String, Integer, RequestState&gt; {
+<span class="fc" id="L33">    private final static String TAG = VideoUploadTask.class.getName();</span>
+    /**
+     * Function call which will be appended to the domain name
+     */
+    private static final String API_CALL = &quot;videoUpload&quot;;
+
+    private static final String API_RESPONSE_SUCCESS = &quot;Finished editing video&quot;;
+    private static final String API_RESPONSE_INPUT_FAILURE = &quot;Uploaded data was not received correctly&quot;;
+    private static final String API_RESPONSE_EDITING_FAILURE = &quot;Setting up for editing video failed. Processing aborted&quot;;
+    private static final String API_RESPONSE_ACCOUNT_FAILURE = &quot;Account data not valid&quot;;
+    private Context context;
+
+    private Account account;
+    private ServerResponseCallback&lt;RequestState&gt; callback;
+    private File videoFile;
+    private File metadata;
+    private File symKey;
+
+    /**
+     * Sets up a new task to upload the video data with the passed parameters
+     * @param videoFile file pointing to the video to upload
+     * @param metadata  file pointing to the metadata of the video
+     * @param symKey    asymmetric encrypted key used to encrypt video and metadata
+     * @param account   Account which will be used for upload
+     * @param callback  Observer which is notified about errors and state changes
+     * @param context   Application context
+     */
+    public VideoUploadTask(File videoFile, File metadata, File symKey, Account account,
+<span class="fc" id="L61">                           ServerResponseCallback&lt;RequestState&gt; callback, Context context) {</span>
+<span class="fc" id="L62">        this.videoFile = videoFile;</span>
+<span class="fc" id="L63">        this.metadata = metadata;</span>
+<span class="fc" id="L64">        this.symKey = symKey;</span>
+<span class="fc" id="L65">        this.account = account;</span>
+<span class="fc" id="L66">        this.callback = callback;</span>
+<span class="fc" id="L67">        this.context = context;</span>
+<span class="fc" id="L68">    }</span>
+
+    /**
+     * Uploads a dataset (consisting out of an encrypted video, metadata and symmetric key file)
+     * to the webservice for processing. As the process is resource intensive the work on the
+     * server is asynchronous so this waits for a response before processing it further on.
+     *
+     * @param params Domain to access the API
+     * @return {@link RequestState} Returns if the upload was successful or what failed.
+     */
+    @Override
+    protected RequestState doInBackground(String... params) {
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        if (!ServerHelper.IsNetworkAvailable()) {</span>
+<span class="nc" id="L81">            return RequestState.NETWORK_FAILURE;</span>
+        }
+
+        // setup client
+<span class="fc" id="L85">        String domain = params[0];</span>
+<span class="fc" id="L86">        Client client = ClientBuilder.newClient();</span>
+<span class="fc" id="L87">        WebTarget webTarget = client.target(domain).path(API_CALL).register(MultiPartFeature.class);</span>
+<span class="fc" id="L88">        Log.i(TAG, &quot;URI: &quot; + webTarget.getUri().toASCIIString());</span>
+
+        // build multiPart
+<span class="fc" id="L91">        MultiPart multiPart = new MultiPart();</span>
+<span class="fc" id="L92">        multiPart.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE);</span>
+<span class="fc" id="L93">        FileDataBodyPart video = new FileDataBodyPart(&quot;video&quot;, videoFile.getAbsoluteFile(), MediaType.APPLICATION_OCTET_STREAM_TYPE);</span>
+<span class="fc" id="L94">        FileDataBodyPart metadata = new FileDataBodyPart(&quot;metadata&quot;, this.metadata.getAbsoluteFile(), MediaType.APPLICATION_OCTET_STREAM_TYPE);</span>
+<span class="fc" id="L95">        FileDataBodyPart key = new FileDataBodyPart(&quot;key&quot;, symKey.getAbsoluteFile(), MediaType.APPLICATION_OCTET_STREAM_TYPE);</span>
+<span class="fc" id="L96">        FormDataBodyPart data = new FormDataBodyPart(&quot;account&quot;, account.getAsJSON());</span>
+<span class="fc" id="L97">        multiPart.bodyPart(video);</span>
+<span class="fc" id="L98">        multiPart.bodyPart(metadata);</span>
+<span class="fc" id="L99">        multiPart.bodyPart(key);</span>
+<span class="fc" id="L100">        multiPart.bodyPart(data);</span>
+
+        // actual post call
+<span class="fc" id="L103">        Future&lt;Response&gt; futureResponse = webTarget.request().async().post(Entity.entity(multiPart, multiPart.getMediaType()), Response.class);</span>
+
+        // wait for response
+        String responseContent;
+        try {
+<span class="fc" id="L108">            Response response = futureResponse.get();</span>
+<span class="fc" id="L109">            responseContent = response.readEntity(String.class);</span>
+<span class="fc" id="L110">            Log.i(TAG, &quot;response: &quot; + responseContent);</span>
+<span class="fc" id="L111">        } catch (InterruptedException | ExecutionException | ProcessingException e) {</span>
+<span class="fc" id="L112">            e.printStackTrace();</span>
+<span class="fc" id="L113">            Log.i(TAG, &quot;Failure on getting response!&quot;);</span>
+<span class="fc" id="L114">            client.close();</span>
+<span class="fc" id="L115">            return RequestState.FAILURE_OTHER;</span>
+<span class="fc" id="L116">        }</span>
+<span class="fc" id="L117">        client.close();</span>
+
+        // handle response
+<span class="fc" id="L120">        Log.i(TAG, &quot;response: &quot; + responseContent);</span>
+        RequestState requestState;
+
+<span class="pc bpc" id="L123" title="12 of 18 branches missed.">        switch (responseContent) {</span>
+            case API_RESPONSE_SUCCESS:
+<span class="fc" id="L125">                requestState = RequestState.SUCCESS;</span>
+<span class="fc" id="L126">                break;</span>
+            case API_RESPONSE_EDITING_FAILURE:
+<span class="nc" id="L128">                requestState = RequestState.EDITING_FAILURE;</span>
+<span class="nc" id="L129">                break;</span>
+            case API_RESPONSE_INPUT_FAILURE:
+<span class="nc" id="L131">                requestState = RequestState.INPUT_FAILURE;</span>
+<span class="nc" id="L132">                break;</span>
+            case API_RESPONSE_ACCOUNT_FAILURE:
+<span class="fc" id="L134">                requestState = RequestState.ACCOUNT_FAILURE;</span>
+<span class="fc" id="L135">                break;</span>
+            default:
+<span class="nc" id="L137">                requestState = RequestState.FAILURE_OTHER;</span>
+        }
+<span class="fc" id="L139">        return requestState;</span>
+    }
+
+    /**
+     * Called after video upload was executed.
+     *
+     * @param requestState the result state or null if the network was unavailable
+     */
+    @Override
+    protected void onPostExecute(RequestState requestState) {
+<span class="fc" id="L149">        super.onPostExecute(requestState);</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        if(requestState != RequestState.NETWORK_FAILURE)</span>
+<span class="fc" id="L151">            callback.onResponse(requestState);</span>
+<span class="fc" id="L152">        else callback.onError(&quot;No network available&quot;);</span>
+<span class="fc" id="L153">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span>Generated by the Android Gradle plugin 2.3.0</div></body></html>

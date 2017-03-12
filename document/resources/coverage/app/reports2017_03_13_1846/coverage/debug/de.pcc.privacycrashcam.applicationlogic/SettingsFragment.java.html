@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>SettingsFragment.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">de.pcc.privacycrashcam.applicationlogic</a> &gt; <span class="el_source">SettingsFragment.java</span></div><h1>SettingsFragment.java</h1><pre class="source lang-java linenums">package de.pcc.privacycrashcam.applicationlogic;
+
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
+
+import de.pcc.privacycrashcam.R;
+import de.pcc.privacycrashcam.data.Settings;
+import de.pcc.privacycrashcam.data.memoryaccess.MemoryManager;
+import de.pcc.privacycrashcam.gui.LogInActivity;
+
+import static android.content.ContentValues.TAG;
+
+/**
+ * Shows the settings view along with its view components and handles user input.
+ *
+ * @author Giorgio Gross, David Laubenstein
+ */
+<span class="nc" id="L28">public class SettingsFragment extends Fragment {</span>
+
+    /* #############################################################################################
+     *                                  attributes
+     * ###########################################################################################*/
+
+    private MemoryManager memoryManager;
+    private Settings settings;
+
+    private TextView fps;
+    private TextView bufferSize;
+    private SeekBar fpsBar;
+    private Button res_High;
+    private Button res_Med;
+    private Button res_Low;
+    private Button b_incBuffer;
+    private Button b_decBuffer;
+    private Button logOut;
+
+    /**
+     * this is the size, the + and - which increase/decrease the buffer size change the value
+     */
+    private static final int BUFFER_CHUNK_SIZE = 5;
+    private static final int BUFFER_SIZE_MIN = 0;
+    private static final int BUFFER_SIZE_MAX = 120;
+
+    /* #############################################################################################
+     *                                  methods
+     * ###########################################################################################*/
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        // get the main layout describing the content
+<span class="nc" id="L63">        RelativeLayout base = (RelativeLayout) inflater.inflate(R.layout.content_settings, container, false);</span>
+
+<span class="nc" id="L65">        memoryManager = new MemoryManager(getContext());</span>
+<span class="nc" id="L66">        settings = memoryManager.getSettings();</span>
+        // init view components
+
+        /**
+         * resolution handling
+         * onClickListener resHandler, which changes quality
+         */
+<span class="nc" id="L73">        View.OnClickListener resHandler = new View.OnClickListener() {</span>
+            public void onClick(View v) {
+<span class="nc bnc" id="L75" title="All 4 branches missed.">                switch (v.getId()) {</span>
+                    case R.id.tv_resHigh:
+<span class="nc" id="L77">                        settings.setQuality(Settings.QUALITY_HIGH);</span>
+<span class="nc" id="L78">                        resetButtonColors();</span>
+<span class="nc" id="L79">                        res_High.setTextColor(</span>
+<span class="nc" id="L80">                                ContextCompat.getColor(getContext(), R.color.colorAccent));</span>
+<span class="nc" id="L81">                        break;</span>
+                    case R.id.tv_resMed:
+<span class="nc" id="L83">                        settings.setQuality(Settings.QUALITY_MEDIUM);</span>
+<span class="nc" id="L84">                        resetButtonColors();</span>
+<span class="nc" id="L85">                        res_Med.setTextColor(</span>
+<span class="nc" id="L86">                                ContextCompat.getColor(getContext(), R.color.colorAccent));</span>
+<span class="nc" id="L87">                        break;</span>
+                    case R.id.tv_resLow:
+<span class="nc" id="L89">                        settings.setQuality(Settings.QUALITY_LOW);</span>
+<span class="nc" id="L90">                        resetButtonColors();</span>
+<span class="nc" id="L91">                        res_Low.setTextColor(</span>
+<span class="nc" id="L92">                                ContextCompat.getColor(getContext(), R.color.colorAccent));</span>
+<span class="nc" id="L93">                        break;</span>
+                    default:
+<span class="nc" id="L95">                        System.out.println(&quot;default&quot;);</span>
+                        break;
+                }
+<span class="nc" id="L98">            }</span>
+        };
+
+
+<span class="nc" id="L102">        res_High = (Button) base.findViewById(R.id.tv_resHigh);</span>
+<span class="nc" id="L103">        res_High.setOnClickListener(resHandler);</span>
+<span class="nc" id="L104">        res_Med = (Button) base.findViewById(R.id.tv_resMed);</span>
+<span class="nc" id="L105">        res_Med.setOnClickListener(resHandler);</span>
+<span class="nc" id="L106">        res_Low = (Button) base.findViewById(R.id.tv_resLow);</span>
+<span class="nc" id="L107">        res_Low.setOnClickListener(resHandler);</span>
+
+        // resets the colors of the resolution buttons
+<span class="nc" id="L110">        resetButtonColors();</span>
+        // get the actual quality saved in the settings and set this as the active
+        // button in the view
+<span class="nc bnc" id="L113" title="All 4 branches missed.">        switch (settings.getQuality()) {</span>
+            case Settings.QUALITY_DEFAULT:
+<span class="nc" id="L115">                res_Med.setTextColor(</span>
+<span class="nc" id="L116">                        ContextCompat.getColor(getContext(), R.color.colorAccent));</span>
+<span class="nc" id="L117">                break;</span>
+            case Settings.QUALITY_HIGH:
+<span class="nc" id="L119">                res_High.setTextColor(</span>
+<span class="nc" id="L120">                        ContextCompat.getColor(getContext(), R.color.colorAccent));</span>
+<span class="nc" id="L121">                break;</span>
+            case Settings.QUALITY_LOW:
+<span class="nc" id="L123">                res_Low.setTextColor(</span>
+<span class="nc" id="L124">                        ContextCompat.getColor(getContext(), R.color.colorAccent));</span>
+<span class="nc" id="L125">                break;</span>
+            default:
+<span class="nc" id="L127">                Log.d(TAG, &quot;No default Quality set&quot;);</span>
+                break;
+        }
+
+        /**
+         * frames handling
+         */
+<span class="nc" id="L134">        fpsBar = (SeekBar) base.findViewById(R.id.seekBar);</span>
+<span class="nc" id="L135">        fpsBar.setProgress(settings.getFps() - 10);</span>
+<span class="nc" id="L136">        fps = (TextView) base.findViewById(R.id.tv_frames);</span>
+<span class="nc" id="L137">        fps.setText(Integer.toString(settings.getFps()));</span>
+<span class="nc" id="L138">        fpsBar.requestLayout();</span>
+<span class="nc" id="L139">        fpsBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {</span>
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+<span class="nc" id="L142">            }</span>
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+<span class="nc" id="L146">            }</span>
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                // fps should be between 20 and 60
+                // there is no min value for progress, so we have to set the value + the min value
+                // and add this to the max value
+<span class="nc" id="L153">                int fps_Int = progress + 10;</span>
+<span class="nc" id="L154">                settings.setFps(fps_Int);</span>
+<span class="nc" id="L155">                fps.setText(Integer.toString(fps_Int));</span>
+<span class="nc" id="L156">            }</span>
+        });
+
+        /**
+         * buffer handling
+         */
+
+<span class="nc" id="L163">        View.OnClickListener bufferHandler = new View.OnClickListener() {</span>
+
+            public void onClick(View v) {
+<span class="nc bnc" id="L166" title="All 3 branches missed.">                switch (v.getId()) {</span>
+                    case R.id.b_incBuffer:
+<span class="nc bnc" id="L168" title="All 2 branches missed.">                        if ((settings.getBufferSizeSec() + BUFFER_CHUNK_SIZE) &lt;= BUFFER_SIZE_MAX) {</span>
+<span class="nc" id="L169">                            settings.setBufferSizeSec(settings.getBufferSizeSec() + BUFFER_CHUNK_SIZE);</span>
+                        }
+                        break;
+                    case R.id.b_decBuffer:
+<span class="nc bnc" id="L173" title="All 2 branches missed.">                        if ((settings.getBufferSizeSec() - BUFFER_CHUNK_SIZE) &gt; BUFFER_SIZE_MIN) {</span>
+<span class="nc" id="L174">                            settings.setBufferSizeSec(settings.getBufferSizeSec() -</span>
+                                    BUFFER_CHUNK_SIZE);
+                        }
+                        break;
+                    default:
+<span class="nc" id="L179">                        System.out.println(&quot;default&quot;);</span>
+                        break;
+                }
+<span class="nc" id="L182">                bufferSize.setText(String.format(</span>
+<span class="nc" id="L183">                        getString(R.string.bufferSizeValue), settings.getBufferSizeSec()));</span>
+<span class="nc" id="L184">            }</span>
+        };
+
+<span class="nc" id="L187">        b_incBuffer = (Button) base.findViewById(R.id.b_incBuffer);</span>
+<span class="nc" id="L188">        b_incBuffer.setOnClickListener(bufferHandler);</span>
+<span class="nc" id="L189">        b_decBuffer = (Button) base.findViewById(R.id.b_decBuffer);</span>
+<span class="nc" id="L190">        b_decBuffer.setOnClickListener(bufferHandler);</span>
+
+        // get the actual buffer size saved in the settings and set this value in the view
+<span class="nc" id="L193">        bufferSize = (TextView) base.findViewById(R.id.tv_bufferSize);</span>
+<span class="nc" id="L194">        bufferSize.setText(</span>
+<span class="nc" id="L195">                String.format(getString(R.string.bufferSizeValue), settings.getBufferSizeSec()));</span>
+
+        // logout
+<span class="nc" id="L198">        logOut = (Button) base.findViewById(R.id.logOut);</span>
+<span class="nc" id="L199">        logOut.setOnClickListener(new View.OnClickListener() {</span>
+            @Override
+            public void onClick(View v) {
+<span class="nc" id="L202">                memoryManager.deleteAccountData();</span>
+<span class="nc" id="L203">                LogInActivity.Launch(getActivity());</span>
+<span class="nc" id="L204">            }</span>
+        });
+<span class="nc" id="L206">        return base;</span>
+    }
+
+    /**
+     * resets the resolution buttons to default color
+     */
+    private void resetButtonColors() {
+<span class="nc" id="L213">        res_High.setTextColor(ContextCompat.getColor(getContext(), R.color.buttonColorDefault));</span>
+<span class="nc" id="L214">        res_Med.setTextColor(ContextCompat.getColor(getContext(), R.color.buttonColorDefault));</span>
+<span class="nc" id="L215">        res_Low.setTextColor(ContextCompat.getColor(getContext(), R.color.buttonColorDefault));</span>
+<span class="nc" id="L216">    }</span>
+
+    /**
+     * if settingsFragment is paused, the settings will be saved, so that the settings
+     * will be the same after reopening the settings fragment
+     */
+    @Override
+    public void onPause() {
+<span class="nc" id="L224">        super.onPause();</span>
+<span class="nc" id="L225">        memoryManager.saveSettings(settings);</span>
+<span class="nc" id="L226">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span>Generated by the Android Gradle plugin 2.3.0</div></body></html>

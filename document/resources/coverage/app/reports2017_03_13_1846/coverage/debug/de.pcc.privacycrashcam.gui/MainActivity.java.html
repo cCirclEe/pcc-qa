@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>MainActivity.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">de.pcc.privacycrashcam.gui</a> &gt; <span class="el_source">MainActivity.java</span></div><h1>MainActivity.java</h1><pre class="source lang-java linenums">package de.pcc.privacycrashcam.gui;
+
+import android.os.Bundle;
+import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
+import android.view.View;
+
+import de.pcc.privacycrashcam.R;
+
+/**
+ * Base class for all activities. Handles navigation through the application's views.
+ *
+ * @author Giorgio
+ */
+<span class="nc bnc" id="L23" title="All 2 branches missed.">public abstract class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {</span>
+
+    /* #############################################################################################
+     *                                  attributes
+     * ###########################################################################################*/
+
+    private static final String TAG = &quot;MAIN_ACT&quot;;
+
+<span class="nc" id="L31">    private int activeMenuItemId = R.id.nav_legal; // default is legal info</span>
+
+    private
+    @Nullable
+    DrawerLayout drawer;
+    private
+    @Nullable
+    NavigationView navigationView;
+
+    /* #############################################################################################
+     *                                  methods
+     * ###########################################################################################*/
+
+    /**
+     * Get the base layout resource for this activity. The layout must contain a toolbar with an id
+     * named &lt;b&gt;toolbar&lt;/b&gt;.
+     * &lt;p&gt;If there is a navigation drawer in the layout it will be displayed. Navigation is handled
+     * by the {@link MainActivity MainActivity} class.&lt;/p&gt;
+     *
+     * @return resource id for this activity
+     */
+    public abstract
+    @LayoutRes
+    int getLayoutRes();
+
+    /**
+     * Get the menu entry which will be highlighted in the drawer. Pass -1 if you don't want to
+     * highlight any navigation menu entry.
+     *
+     * @return R.id.[menu_entry_id]
+     */
+    public abstract int getMenuEntryId();
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+<span class="nc" id="L66">        super.onCreate(savedInstanceState);</span>
+<span class="nc" id="L67">        setContentView(getLayoutRes());</span>
+
+        // set toolbar and nav nav_drawer
+<span class="nc" id="L70">        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (toolbar == null) throw new IllegalArgumentException(&quot;You passed a layout file &quot; +</span>
+                &quot;without a toolbar, but a toolbar with id \&quot;toolbar\&quot; was expected.&quot;);
+<span class="nc" id="L73">        setSupportActionBar(toolbar);</span>
+<span class="nc" id="L74">        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        if (drawer != null) {</span>
+<span class="nc" id="L76">            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(</span>
+                    this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+<span class="nc" id="L78">            drawer.addDrawerListener(toggle);</span>
+<span class="nc" id="L79">            toggle.syncState();</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            drawer.addDrawerListener(new DrawerLayout.DrawerListener() {</span>
+<span class="nc" id="L81">                private boolean hasRequestedLayout = false;</span>
+
+                @Override
+                public void onDrawerSlide(View drawerView, float slideOffset) {
+<span class="nc" id="L85">                    redrawNavigationView();</span>
+
+                    // make sure that we will redraw the nav view next time we move the drawer
+<span class="nc bnc" id="L88" title="All 2 branches missed.">                    if (slideOffset == 1f) hasRequestedLayout = false;</span>
+<span class="nc" id="L89">                }</span>
+
+                @Override
+                public void onDrawerOpened(View drawerView) {
+
+<span class="nc" id="L94">                }</span>
+
+                @Override
+                public void onDrawerClosed(View drawerView) {
+
+<span class="nc" id="L99">                }</span>
+
+                @Override
+                public void onDrawerStateChanged(int newState) {
+
+<span class="nc" id="L104">                }</span>
+
+                /*
+                redraw navigation view as any surface views in the layout will prevent it from
+                rendering right.
+                 */
+                private void redrawNavigationView() {
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                    if (!hasRequestedLayout) {</span>
+<span class="nc bnc" id="L112" title="All 4 branches missed.">                        assert navigationView != null;</span>
+<span class="nc" id="L113">                        navigationView.requestLayout();</span>
+<span class="nc" id="L114">                        hasRequestedLayout = true;</span>
+                    }
+<span class="nc" id="L116">                }</span>
+
+            });
+
+<span class="nc" id="L120">            navigationView = (NavigationView) findViewById(R.id.nav_view);</span>
+<span class="nc bnc" id="L121" title="All 4 branches missed.">            assert navigationView != null;</span>
+<span class="nc" id="L122">            navigationView.setNavigationItemSelectedListener(this);</span>
+<span class="nc" id="L123">            activeMenuItemId = getMenuEntryId();</span>
+<span class="nc" id="L124">            navigationView.setCheckedItem(activeMenuItemId);</span>
+        }
+<span class="nc" id="L126">    }</span>
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+<span class="nc bnc" id="L130" title="All 4 branches missed.">        if (drawer == null || item.getItemId() == activeMenuItemId)</span>
+<span class="nc" id="L131">            return false;</span>
+
+        // Handle navigation view item clicks
+<span class="nc" id="L134">        int id = item.getItemId();</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        if (id == R.id.nav_camera) {</span>
+            // show camera
+<span class="nc" id="L137">            CameraActivity.Launch(this);</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">        } else if (id == R.id.nav_recorded) {</span>
+            // show recorded videos
+<span class="nc" id="L140">            VideosActivity.Launch(this);</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        } else if (id == R.id.nav_settings) {</span>
+            // show settings
+<span class="nc" id="L143">            SettingsActivity.Launch(this);</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        } else if (id == R.id.nav_legal) {</span>
+            // show legal information
+<span class="nc" id="L146">            LegalActivity.Launch(this);</span>
+        }
+<span class="nc" id="L148">        drawer.closeDrawer(GravityCompat.START);</span>
+<span class="nc" id="L149">        return true;</span>
+    }
+
+    /**
+     * Removes the drawer shadow by setting it transparent. Can be called by subclasses.
+     */
+    protected void removeDrawerShadow() {
+<span class="nc bnc" id="L156" title="All 2 branches missed.">        if (drawer != null) drawer.setScrimColor(ContextCompat.getColor(getApplicationContext(),</span>
+                android.R.color.transparent));
+<span class="nc" id="L158">    }</span>
+
+    @Override
+    public void onBackPressed() {
+<span class="nc bnc" id="L162" title="All 4 branches missed.">        if (drawer != null &amp;&amp; drawer.isDrawerOpen(GravityCompat.START)) {</span>
+<span class="nc" id="L163">            drawer.closeDrawer(GravityCompat.START);</span>
+        } else {
+<span class="nc" id="L165">            super.onBackPressed();</span>
+        }
+<span class="nc" id="L167">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span>Generated by the Android Gradle plugin 2.3.0</div></body></html>

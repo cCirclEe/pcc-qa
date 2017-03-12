@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>CameraHelper.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">de.pcc.privacycrashcam.applicationlogic.camera</a> &gt; <span class="el_source">CameraHelper.java</span></div><h1>CameraHelper.java</h1><pre class="source lang-java linenums">package de.pcc.privacycrashcam.applicationlogic.camera;
+/*
+ * Copyright (C) 2013 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.hardware.Camera;
+import android.os.Build;
+import android.os.Environment;
+import android.util.Log;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * Camera related utilities.
+ *
+ * @see &lt;a href=https://github.com/googlesamples/android-MediaRecorder/blob/master/Application/src/main/java/com/example/android/common/media/CameraHelper.java&gt;GitHub&lt;/a&gt; for complete file.
+ */
+@SuppressWarnings(&quot;deprecation&quot;)
+<span class="nc" id="L37">public class CameraHelper {</span>
+
+    /**
+     * Iterate over supported camera video sizes to see which one best fits the
+     * dimensions of the given view while maintaining the aspect ratio. If none can,
+     * be lenient with the aspect ratio.
+     *
+     * @param supportedVideoSizes Supported camera video sizes.
+     * @param previewSizes Supported camera preview sizes.
+     * @param w     The width of the view.
+     * @param h     The height of the view.
+     * @return Best match camera video size to fit in the view.
+     */
+    public static Camera.Size getOptimalVideoSize(List&lt;Camera.Size&gt; supportedVideoSizes,
+                                                  List&lt;Camera.Size&gt; previewSizes, int w, int h) {
+        // Use a very small tolerance because we want an exact match.
+<span class="fc" id="L53">        final double ASPECT_TOLERANCE = 0.1;</span>
+<span class="fc" id="L54">        double targetRatio = (double) w / h;</span>
+
+        // Supported video sizes list might be null, it means that we are allowed to use the preview
+        // sizes
+        List&lt;Camera.Size&gt; videoSizes;
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        if (supportedVideoSizes != null) {</span>
+<span class="fc" id="L60">            videoSizes = supportedVideoSizes;</span>
+        } else {
+<span class="nc" id="L62">            videoSizes = previewSizes;</span>
+        }
+<span class="fc" id="L64">        Camera.Size optimalSize = null;</span>
+
+        // Start with max value and refine as we iterate over available video sizes. This is the
+        // minimum difference between view and camera height.
+<span class="fc" id="L68">        double minDiff = Double.MAX_VALUE;</span>
+
+        // Target view height
+<span class="fc" id="L71">        int targetHeight = h;</span>
+
+        // Try to find a video size that matches aspect ratio and the target view size.
+        // Iterate over all available sizes and pick the largest size that can fit in the view and
+        // still maintain the aspect ratio.
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        for (Camera.Size size : videoSizes) {</span>
+<span class="fc" id="L77">            double ratio = (double) size.width / size.height;</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">            if (Math.abs(ratio - targetRatio) &gt; ASPECT_TOLERANCE)</span>
+<span class="nc" id="L79">                continue;</span>
+<span class="pc bpc" id="L80" title="1 of 4 branches missed.">            if (Math.abs(size.height - targetHeight) &lt; minDiff &amp;&amp; previewSizes.contains(size)) {</span>
+<span class="fc" id="L81">                optimalSize = size;</span>
+<span class="fc" id="L82">                minDiff = Math.abs(size.height - targetHeight);</span>
+            }
+<span class="fc" id="L84">        }</span>
+
+        // Cannot find video size that matches the aspect ratio, ignore the requirement
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        if (optimalSize == null) {</span>
+<span class="nc" id="L88">            minDiff = Double.MAX_VALUE;</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">            for (Camera.Size size : videoSizes) {</span>
+<span class="nc bnc" id="L90" title="All 4 branches missed.">                if (Math.abs(size.height - targetHeight) &lt; minDiff &amp;&amp; previewSizes.contains(size)) {</span>
+<span class="nc" id="L91">                    optimalSize = size;</span>
+<span class="nc" id="L92">                    minDiff = Math.abs(size.height - targetHeight);</span>
+                }
+<span class="nc" id="L94">            }</span>
+        }
+<span class="fc" id="L96">        return optimalSize;</span>
+    }
+
+    /**
+     * @return the default camera on the device. Return null if there is no camera on the device.
+     */
+    public static Camera getDefaultCameraInstance() {
+<span class="nc" id="L103">        return Camera.open();</span>
+    }
+
+
+    /**
+     * @return the default rear/back facing camera on the device. Returns null if camera is not
+     * available.
+     */
+    public static Camera getDefaultBackFacingCameraInstance() {
+<span class="fc" id="L112">        return getDefaultCamera(Camera.CameraInfo.CAMERA_FACING_BACK);</span>
+    }
+
+    /**
+     * @return the default front facing camera on the device. Returns null if camera is not
+     * available.
+     */
+    public static Camera getDefaultFrontFacingCameraInstance() {
+<span class="nc" id="L120">        return getDefaultCamera(Camera.CameraInfo.CAMERA_FACING_FRONT);</span>
+    }
+
+
+    /**
+     *
+     * @param position Physical position of the camera i.e Camera.CameraInfo.CAMERA_FACING_FRONT
+     *                 or Camera.CameraInfo.CAMERA_FACING_BACK.
+     * @return the default camera on the device. Returns null if camera is not available.
+     */
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+    private static Camera getDefaultCamera(int position) {
+        // Find the total number of cameras available
+<span class="fc" id="L133">        int  mNumberOfCameras = Camera.getNumberOfCameras();</span>
+
+        // Find the ID of the back-facing (&quot;default&quot;) camera
+<span class="fc" id="L136">        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();</span>
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">        for (int i = 0; i &lt; mNumberOfCameras; i++) {</span>
+<span class="fc" id="L138">            Camera.getCameraInfo(i, cameraInfo);</span>
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">            if (cameraInfo.facing == position) {</span>
+                try {
+<span class="fc" id="L141">                    return Camera.open(i);</span>
+<span class="nc" id="L142">                } catch (Exception e){</span>
+<span class="nc" id="L143">                    e.printStackTrace();</span>
+<span class="nc" id="L144">                    return null;</span>
+                }
+
+            }
+        }
+
+<span class="nc" id="L150">        return null;</span>
+    }
+
+    /**
+     * Creates a media file in the {@code Environment.DIRECTORY_PICTURES} directory. The directory
+     * is persistent and available to other applications like gallery.
+     *
+     * @return A file object pointing to the newly created file.
+     */
+    public  static File getOutputFile(String prefix, String name, String suffix){
+        // To be safe, you should check that the SDCard is mounted
+        // using Environment.getExternalStorageState() before doing this.
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        if (!Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)) {</span>
+<span class="nc" id="L163">            return  null;</span>
+        }
+
+<span class="nc" id="L166">        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(</span>
+                Environment.DIRECTORY_PICTURES), &quot;CameraSample&quot;);
+        // This location works best if you want the created images to be shared
+        // between applications and persist after your app has been uninstalled.
+
+        // Create the storage directory if it does not exist
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        if (! mediaStorageDir.exists()){</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">            if (! mediaStorageDir.mkdirs()) {</span>
+<span class="nc" id="L174">                Log.d(&quot;CameraSample&quot;, &quot;failed to create directory&quot;);</span>
+<span class="nc" id="L175">                return null;</span>
+            }
+        }
+
+        // Create a media file name
+        File mediaFile;
+<span class="nc" id="L181">        mediaFile = new File(mediaStorageDir.getPath() + File.separator +</span>
+                prefix + name + &quot;.&quot; + suffix);
+
+<span class="nc" id="L184">        return mediaFile;</span>
+    }
+
+    /* #############################################################################################
+
+                                   Methods added by PCC PSE team
+
+    ############################################################################################# */
+
+    /**
+     * Check if this device has a camera
+     */
+    public static boolean hasCameraHardware(Context context) {
+<span class="fc" id="L197">        return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);</span>
+    }
+
+    /**
+     * @return the default rear/back facing camera info on the device. Returns null if camera is not
+     * available.
+     */
+    public static Camera.CameraInfo getDefaultBackFacingCameraInfo() {
+<span class="fc" id="L205">        Camera.CameraInfo info = new Camera.CameraInfo();</span>
+<span class="fc" id="L206">        Camera.getCameraInfo(Camera.CameraInfo.CAMERA_FACING_BACK, info);</span>
+<span class="fc" id="L207">        return info;</span>
+    }
+
+    public static Camera.Size getDefaultVideoSize(List&lt;Camera.Size&gt; supportedVideoSizes,
+                                                  List&lt;Camera.Size&gt; previewSizes) {
+<span class="nc bnc" id="L212" title="All 4 branches missed.">        if(supportedVideoSizes != null &amp;&amp; supportedVideoSizes.size() &gt; 0) {</span>
+<span class="nc" id="L213">            return supportedVideoSizes.get(0);</span>
+        }
+        // if previewSizes is empty or null something went terribly wrong...
+<span class="nc" id="L216">        return previewSizes.get(0);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span>Generated by the Android Gradle plugin 2.3.0</div></body></html>

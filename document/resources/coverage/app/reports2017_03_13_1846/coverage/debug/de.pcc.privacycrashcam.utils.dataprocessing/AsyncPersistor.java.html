@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>AsyncPersistor.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">de.pcc.privacycrashcam.utils.dataprocessing</a> &gt; <span class="el_source">AsyncPersistor.java</span></div><h1>AsyncPersistor.java</h1><pre class="source lang-java linenums">package de.pcc.privacycrashcam.utils.dataprocessing;
+
+import android.content.Context;
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+
+import com.coremedia.iso.boxes.Container;
+import com.googlecode.mp4parser.authoring.Movie;
+import com.googlecode.mp4parser.authoring.Track;
+import com.googlecode.mp4parser.authoring.builder.DefaultMp4Builder;
+import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
+import com.googlecode.mp4parser.authoring.tracks.AppendTrack;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Queue;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+
+import de.pcc.privacycrashcam.R;
+import de.pcc.privacycrashcam.data.Metadata;
+import de.pcc.privacycrashcam.data.Settings;
+import de.pcc.privacycrashcam.data.memoryaccess.MemoryManager;
+import de.pcc.privacycrashcam.utils.datastructures.VideoRingBuffer;
+import de.pcc.privacycrashcam.utils.encryption.Encryptor;
+
+/**
+ * The AsyncPersistor saves all data after recording gets invoked in the app.
+ * First it saves the metadata of the recording to a json file.
+ * Then it takes all recorded video snippets and creates one coherent file.
+ * After that all data gets encrypted and save to the app's data storage.
+ * &lt;p&gt;The process of persisting is asynchronous to the app's main thread.
+ * Therefore callbacks are used to inform the app about the persisting's progress.&lt;/p&gt;
+ *
+ * @author Josh Romanowski, Giorgio Groß
+ */
+public class AsyncPersistor extends AsyncTask&lt;Metadata, Void, Boolean&gt; {
+
+<span class="fc" id="L50">    private final static String TAG = AsyncPersistor.class.getName();</span>
+
+    /* #############################################################################################
+     *                                  attributes
+     * ###########################################################################################*/
+
+    /**
+     * Manager used to access the app's memory e.g. saving the video data.
+     */
+    private MemoryManager memoryManager;
+    /**
+     * Callback used to inform the app about the progress of persisting.
+     */
+    private PersistCallback persistCallback;
+    /**
+     * Context of the persisting. Used to load resources.
+     */
+    private Context context;
+    /**
+     * Ringbuffer that contains the recorded video snippets
+     */
+    private VideoRingBuffer ringbuffer;
+    /**
+     * Encryptor used to encryptAndPersist files and keys.
+     */
+    private Encryptor encryptor;
+    /**
+     * Settings used to determine the ringbuffer size.
+     */
+    private Settings settings;
+
+    /* #############################################################################################
+     *                                  constructors
+     * ###########################################################################################*/
+
+    /**
+     * Creates a new persistor with the given parameters. The AsyncPersistor will use its own
+     * temporary directory.
+     *
+     * @param ringbuffer      Buffer containing the recorded video snippets.
+     * @param persistCallback Callback used to give asynchronous response.
+     * @param context         Android context of the recording.
+     */
+    public AsyncPersistor(VideoRingBuffer ringbuffer,
+<span class="nc" id="L94">                          PersistCallback persistCallback, Context context) {</span>
+        // new mem manager will provide own temp directory for this operation
+<span class="nc" id="L96">        this.memoryManager = new MemoryManager(context);</span>
+
+<span class="nc" id="L98">        this.ringbuffer = ringbuffer;</span>
+<span class="nc" id="L99">        this.persistCallback = persistCallback;</span>
+<span class="nc" id="L100">        this.context = context;</span>
+<span class="nc" id="L101">        this.encryptor = new Encryptor();</span>
+<span class="nc" id="L102">        this.settings = memoryManager.getSettings();</span>
+<span class="nc" id="L103">    }</span>
+
+    /**
+     * Creates a new persistor with the given parameters. The AsyncPersistor will use create
+     * temporary data and operate on temporary files accessible to the passed {@link MemoryManager}
+     * instance. See {@link #AsyncPersistor(VideoRingBuffer, PersistCallback, Context)} if you
+     * want AsyncPersisort to use its own temp directory.
+     *
+     * @param ringbuffer      Buffer containing the recorded video snippets.
+     * @param memoryManager   MemoryManager instance to access temp files
+     * @param persistCallback Callback used to give asynchronous response.
+     * @param context         Android context of the recording.
+     */
+    public AsyncPersistor(VideoRingBuffer ringbuffer, MemoryManager memoryManager,
+<span class="fc" id="L117">                          PersistCallback persistCallback, Context context) {</span>
+        // new mem manager will provide own temp directory for this operation
+<span class="fc" id="L119">        this.memoryManager = memoryManager;</span>
+
+<span class="fc" id="L121">        this.ringbuffer = ringbuffer;</span>
+<span class="fc" id="L122">        this.persistCallback = persistCallback;</span>
+<span class="fc" id="L123">        this.context = context;</span>
+<span class="fc" id="L124">        this.encryptor = new Encryptor();</span>
+<span class="fc" id="L125">        this.settings = memoryManager.getSettings();</span>
+<span class="fc" id="L126">    }</span>
+
+    /* #############################################################################################
+     *                                  methods
+     * ###########################################################################################*/
+
+    @Override
+    protected Boolean doInBackground(Metadata... params) {
+<span class="fc" id="L134">        Log.i(TAG, &quot;Background task started&quot;);</span>
+
+        // wait half a buffer size
+<span class="fc" id="L137">        int timeToWait = settings.getBufferSizeSec() * 1000 / 2;</span>
+        try {
+<span class="fc" id="L139">            Thread.sleep(timeToWait);</span>
+<span class="nc" id="L140">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L141">            e.printStackTrace();</span>
+<span class="nc" id="L142">            return false;</span>
+<span class="fc" id="L143">        }</span>
+
+        // post to UI thread and wait until the UI has migrated to a completely new RingBuffer
+<span class="fc" id="L146">        final CyclicBarrier mBarrier = new CyclicBarrier(2);</span>
+<span class="fc" id="L147">        new Handler(Looper.getMainLooper()).post(new Runnable() {</span>
+            @Override
+            public void run() {
+<span class="fc" id="L150">                Log.i(TAG, &quot;updating UI and CamHandler&quot;);</span>
+<span class="fc" id="L151">                persistCallback.onPersistingStarted();</span>
+                try {
+<span class="fc" id="L153">                    mBarrier.await();</span>
+<span class="nc" id="L154">                } catch (InterruptedException | BrokenBarrierException e) {</span>
+<span class="nc" id="L155">                    e.printStackTrace();</span>
+<span class="fc" id="L156">                }</span>
+<span class="fc" id="L157">            }</span>
+        });
+        try {
+<span class="fc" id="L160">            Log.i(TAG, &quot;waiting for UI to finish update&quot;);</span>
+<span class="fc" id="L161">            mBarrier.await();</span>
+<span class="nc" id="L162">        } catch (InterruptedException ex) {</span>
+<span class="nc" id="L163">            return false;</span>
+<span class="nc" id="L164">        } catch (BrokenBarrierException ex) {</span>
+<span class="nc" id="L165">            return false;</span>
+<span class="fc" id="L166">        }</span>
+        // UI has no reference to the ring buffer and the memory manager instance anymore. We can
+        // now freely operate on it.
+<span class="fc" id="L169">        Log.i(TAG, &quot;Start writing files&quot;);</span>
+
+        // save metadata
+<span class="fc" id="L172">        Metadata metaData = params[0];</span>
+<span class="fc bfc" id="L173" title="All 2 branches covered.">        if (metaData == null) {</span>
+<span class="fc" id="L174">            Log.w(TAG, &quot;Did not receive metadata&quot;);</span>
+<span class="fc" id="L175">            return false;</span>
+        }
+
+<span class="fc" id="L178">        String videoTag = String.valueOf(metaData.getDate());</span>
+<span class="fc" id="L179">        File metaLocation = memoryManager.createReadableMetadataFile(videoTag);</span>
+<span class="fc bfc" id="L180" title="All 2 branches covered.">        if (!saveMetadataToFile(metaLocation, metaData))</span>
+<span class="fc" id="L181">            return false;</span>
+
+        // concat video snippets
+<span class="fc" id="L184">        Queue&lt;File&gt; vidSnippets = ringbuffer.demandData();</span>
+<span class="fc bfc" id="L185" title="All 2 branches covered.">        if (vidSnippets == null)</span>
+<span class="fc" id="L186">            return false;</span>
+<span class="fc" id="L187">        Log.i(TAG, &quot;All files to be concatenated were written&quot;);</span>
+
+<span class="fc" id="L189">        File concatVid = memoryManager.getTempVideoFile();</span>
+<span class="fc bfc" id="L190" title="All 2 branches covered.">        if (!concatVideos(vidSnippets, concatVid))</span>
+<span class="fc" id="L191">            return false;</span>
+
+        // encryptAndPersist files
+<span class="fc bfc" id="L194" title="All 2 branches covered.">        if (!encryptAndPersist(videoTag, concatVid, metaLocation))</span>
+<span class="fc" id="L195">            return false;</span>
+
+        // delete temporary files
+<span class="fc" id="L198">        memoryManager.deleteCurrentTempData();</span>
+<span class="fc" id="L199">        ringbuffer.flushAll();</span>
+
+<span class="fc" id="L201">        Log.i(TAG, &quot;Finished writing files&quot;);</span>
+
+<span class="fc" id="L203">        return true;</span>
+    }
+
+    @Override
+    protected void onPostExecute(Boolean status) {
+<span class="fc" id="L208">        super.onPostExecute(status);</span>
+<span class="fc" id="L209">        persistCallback.onPersistingStopped(status);</span>
+<span class="fc" id="L210">    }</span>
+
+    /* #############################################################################################
+
+                                        helper methods
+
+     * ###########################################################################################*/
+
+    /**
+     * Encrypts metadata and video with a hybrid encryption algorithm.
+     * Saves the files on the app. Destination files will be created according to the MemoryManager.
+     *
+     * @param videoTag    Name added to the actual video name
+     * @param concatVideo Location of the video to encryptAndPersist.
+     * @param meta        Location of the metadata to encryptAndPersist.
+     * @return Returns whether encrypting was successful or not.
+     */
+    private boolean encryptAndPersist(String videoTag, File concatVideo, File meta) {
+        // encrypt
+<span class="fc" id="L229">        File[] input = new File[]{</span>
+                concatVideo,
+                meta};
+<span class="fc" id="L232">        File[] output = new File[]{</span>
+<span class="fc" id="L233">                memoryManager.getTempVideoFile(),</span>
+<span class="fc" id="L234">                memoryManager.createEncryptedMetaFile(videoTag)};</span>
+<span class="fc" id="L235">        File encKey = memoryManager.createEncryptedSymmetricKeyFile(videoTag);</span>
+<span class="fc" id="L236">        InputStream publicKey = context.getResources().openRawResource(R.raw.publickey);</span>
+<span class="fc bfc" id="L237" title="All 2 branches covered.">        if (!encryptor.encrypt(input, output, publicKey, encKey))</span>
+<span class="fc" id="L238">            return false;</span>
+
+        // finally persist encrypted video
+<span class="fc" id="L241">        byte[] buffer = new byte[1024];</span>
+        int read;
+        try {
+<span class="fc" id="L244">            FileInputStream fis = new FileInputStream(output[0]);</span>
+<span class="fc" id="L245">            FileOutputStream fos = new FileOutputStream(memoryManager.createEncryptedVideoFile(videoTag));</span>
+
+<span class="fc bfc" id="L247" title="All 2 branches covered.">            while ((read = fis.read(buffer)) != -1) {</span>
+<span class="fc" id="L248">                fos.write(buffer, 0, read);</span>
+            }
+<span class="fc" id="L250">            fos.flush();</span>
+<span class="fc" id="L251">            fis.close();</span>
+<span class="fc" id="L252">            fos.close();</span>
+<span class="fc" id="L253">        } catch (IOException e) {</span>
+<span class="fc" id="L254">            Log.w(TAG, &quot;Persisting encrypted video failed&quot;);</span>
+<span class="fc" id="L255">            return false;</span>
+<span class="fc" id="L256">        }</span>
+
+<span class="fc" id="L258">        return true;</span>
+    }
+
+    /**
+     * Takes a collection of videos and appends them in order.
+     * Through that creates a continuous video and saves it to the desired location.
+     *
+     * @param videos      Collection of video snippets.
+     * @param concatVideo Location of the merged video.
+     * @return Returns whether concatting the videos was successful or not.
+     */
+    private boolean concatVideos(Queue&lt;File&gt; videos, File concatVideo) {
+        // read all video snippets
+<span class="fc" id="L271">        List&lt;Movie&gt; clips = new LinkedList&lt;&gt;();</span>
+        try {
+<span class="fc bfc" id="L273" title="All 2 branches covered.">            for (File video : videos) {</span>
+<span class="fc" id="L274">                Movie tm = MovieCreator.build(video.getAbsolutePath());</span>
+<span class="fc" id="L275">                clips.add(tm);</span>
+<span class="fc" id="L276">            }</span>
+<span class="nc" id="L277">        } catch (IOException e) {</span>
+<span class="nc" id="L278">            Log.w(TAG, &quot;Error while reading video snippets&quot;);</span>
+<span class="nc" id="L279">            return false;</span>
+<span class="fc" id="L280">        }</span>
+
+        // filter out video tracks and ignore audio tracks
+<span class="fc" id="L283">        List&lt;Track&gt; videoTracks = new LinkedList&lt;&gt;();</span>
+<span class="fc bfc" id="L284" title="All 2 branches covered.">        for (Movie m : clips) {</span>
+<span class="fc bfc" id="L285" title="All 2 branches covered.">            for (Track t : m.getTracks()) {</span>
+<span class="pc bpc" id="L286" title="1 of 2 branches missed.">                if (t.getHandler().equals(&quot;vide&quot;)) {</span>
+<span class="fc" id="L287">                    videoTracks.add(t);</span>
+                }
+<span class="fc" id="L289">            }</span>
+<span class="fc" id="L290">        }</span>
+
+        // create video
+<span class="fc" id="L293">        Movie result = new Movie();</span>
+        try {
+<span class="pc bpc" id="L295" title="1 of 2 branches missed.">            if (videoTracks.size() &gt; 0) {</span>
+<span class="fc" id="L296">                result.addTrack(new AppendTrack(videoTracks.toArray(new Track[videoTracks.size()])));</span>
+            }
+
+<span class="fc" id="L299">            Container out = new DefaultMp4Builder().build(result);</span>
+<span class="fc" id="L300">            RandomAccessFile raf = new RandomAccessFile(concatVideo, &quot;rw&quot;);</span>
+<span class="fc" id="L301">            FileChannel fc = raf.getChannel();</span>
+<span class="fc" id="L302">            out.writeContainer(fc);</span>
+
+<span class="fc" id="L304">            fc.close();</span>
+<span class="fc" id="L305">            raf.close();</span>
+<span class="fc" id="L306">        } catch (IOException|NoSuchElementException e) {</span>
+<span class="fc" id="L307">            Log.w(TAG, &quot;Error while writing concat video&quot;);</span>
+<span class="fc" id="L308">            return false;</span>
+<span class="fc" id="L309">        }</span>
+<span class="fc" id="L310">        return true;</span>
+    }
+
+    /**
+     * Takes a metadata object, parses it into json format and saves it to a file.
+     *
+     * @param output   Output location of the metadata file.
+     * @param metadata Metadata to be saved.
+     * @return Returns whether saving was successful or not.
+     */
+    private boolean saveMetadataToFile(File output, Metadata metadata) {
+<span class="fc" id="L321">        String metaJson = metadata.getAsJSON();</span>
+<span class="pc" id="L322">        try (PrintWriter out = new PrintWriter(output)) {</span>
+<span class="fc" id="L323">            out.println(metaJson);</span>
+<span class="pc bpc" id="L324" title="6 of 8 branches missed.">        } catch (IOException e) {</span>
+<span class="fc" id="L325">            Log.w(TAG, &quot;Error when saving metadata to files&quot;);</span>
+<span class="fc" id="L326">            return false;</span>
+<span class="fc" id="L327">        }</span>
+<span class="fc" id="L328">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span>Generated by the Android Gradle plugin 2.3.0</div></body></html>

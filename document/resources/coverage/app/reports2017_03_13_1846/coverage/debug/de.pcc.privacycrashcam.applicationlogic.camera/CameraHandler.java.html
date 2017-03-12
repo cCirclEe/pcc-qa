@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>CameraHandler.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">de.pcc.privacycrashcam.applicationlogic.camera</a> &gt; <span class="el_source">CameraHandler.java</span></div><h1>CameraHandler.java</h1><pre class="source lang-java linenums">package de.pcc.privacycrashcam.applicationlogic.camera;
+
+import de.pcc.privacycrashcam.data.Metadata;
+
+/**
+ * Interface each camera handler needs to implement. Clients will communicate through this interface
+ * with the camera handler. The camera handler is then responsible for setting up, maintaining,
+ * managing and cleaning up data structures and camera calls.
+ * &lt;p&gt;
+ * &lt;p&gt;The camera handler has a lifecycle which is related to the lifecycle
+ * {@link android.app.Activity Activities} have. This way, activities and UI components can
+ * synchronize their life cycle with the camera handler.&lt;br&gt;
+ * The camera handlers methods should be called in the following order to make the handler work
+ * properly and always make a call to super:
+ * &lt;ul&gt;
+ * &lt;li&gt;{@link #createHandler()}&lt;/li&gt;
+ * &lt;li&gt;{@link #resumeHandler()}&lt;/li&gt;
+ * &lt;li&gt;Now {@link #schedulePersisting()} or {@link #updateMetadata(Metadata)} can be called&lt;/li&gt;
+ * &lt;li&gt;{@link #pauseHandler()}&lt;/li&gt;
+ * &lt;li&gt;{@link #destroyHandler()}&lt;/li&gt;
+ * &lt;/ul&gt;
+ * After {@link #destroyHandler()} was called you will need to call createHandler again in order to
+ * reuse the handler. Note that &lt;b&gt;consecutive calls to the same lifecycle method will have no
+ * effect!&lt;/b&gt;
+ * &lt;p&gt;
+ * &lt;/p&gt;
+ *
+ * @author Giorgio Gross
+ */
+<span class="fc" id="L30">public abstract class CameraHandler {</span>
+<span class="pc" id="L31">    private enum State {</span>
+<span class="fc" id="L32">        INITIALIZED,</span>
+<span class="fc" id="L33">        CREATED,</span>
+<span class="fc" id="L34">        RESUMED,</span>
+<span class="fc" id="L35">        PAUSED,</span>
+<span class="fc" id="L36">        DESTROYED</span>
+    }
+
+<span class="fc" id="L39">    private State state = State.INITIALIZED;</span>
+
+    /**
+     * Should be called before {@link #resumeHandler()}. Performs memory related preparation tasks
+     * or sets up variables which need to be set up once at start up.
+     *
+     * @throws IllegalStateException If you did not call lifecycle methods in the right order
+     */
+    public void createHandler() throws IllegalStateException {
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        if (state == State.CREATED) return;</span>
+<span class="pc bpc" id="L49" title="3 of 4 branches missed.">        if (state != State.INITIALIZED &amp;&amp; state != State.DESTROYED)</span>
+<span class="nc" id="L50">            throw new IllegalStateException();</span>
+<span class="fc" id="L51">        state = State.CREATED;</span>
+<span class="fc" id="L52">    }</span>
+
+    /**
+     * Resumes the camera handler. Called when UI becomes visible to the user. Makes camera and
+     * recorder available and starts buffering video chunks.
+     *
+     * @throws IllegalStateException If you did not call lifecycle methods in the right order
+     */
+    public void resumeHandler() {
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">        if (state == State.RESUMED) return;</span>
+<span class="pc bpc" id="L62" title="1 of 4 branches missed.">        if (state != State.CREATED &amp;&amp; state != State.PAUSED) throw new IllegalStateException();</span>
+<span class="fc" id="L63">        state = State.RESUMED;</span>
+<span class="fc" id="L64">    }</span>
+
+    /**
+     * Updates the camera handlers metadata reference.
+     *
+     * @param metadata new meta data object
+     * @throws NullPointerException If you did not call lifecycle methods in the right order
+     */
+    abstract void updateMetadata(Metadata metadata) throws NullPointerException;
+
+    /**
+     * Tells the camera handler to start recording. The camera handler should decide on his own
+     * when to actually persist video data.
+     *
+     * @throws NullPointerException If you did not call lifecycle methods in the right order
+     */
+    abstract void schedulePersisting() throws NullPointerException;
+
+    /**
+     * Pauses the handler. Called when the UI becomes invisible to the user. Releases camera and
+     * recorder and stops buffering video chunks.
+     *
+     * @throws IllegalStateException If you did not call lifecycle methods in the right order
+     */
+    public void pauseHandler() throws IllegalStateException {
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        if (state == State.PAUSED) return;</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if (state != State.RESUMED) throw new IllegalStateException();</span>
+<span class="fc" id="L91">        state = State.PAUSED;</span>
+<span class="fc" id="L92">    }</span>
+
+    /**
+     * Releases all resources allocated by the handler. The handler gets into an invalid state after
+     * making this call and thus cannot be reused.&lt;br&gt;
+     * Call {@link #pauseHandler()} if you wish to reuse your handler instance instead.&lt;br&gt;
+     * Call {@link #createHandler()} if you want to restore and reuse this camera handler.
+     *
+     * @throws IllegalStateException If you did not call lifecycle methods in the right order
+     */
+    public void destroyHandler() throws IllegalStateException {
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">        if (state == State.DESTROYED) return;</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        if (state != State.PAUSED) throw new IllegalStateException();</span>
+<span class="fc" id="L105">        state = State.DESTROYED;</span>
+<span class="fc" id="L106">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span>Generated by the Android Gradle plugin 2.3.0</div></body></html>

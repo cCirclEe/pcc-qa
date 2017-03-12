@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>HTMLDialogViewer.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">de.pcc.privacycrashcam.applicationlogic</a> &gt; <span class="el_source">HTMLDialogViewer.java</span></div><h1>HTMLDialogViewer.java</h1><pre class="source lang-java linenums">package de.pcc.privacycrashcam.applicationlogic;
+
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.os.AsyncTask;
+import android.support.annotation.RawRes;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.webkit.WebView;
+import android.widget.ProgressBar;
+
+import java.io.InputStream;
+import java.util.Scanner;
+
+import de.pcc.privacycrashcam.R;
+
+/**
+ * Displays a dialog which shows an html file. Loading of the html file is done asynchronously.
+ *
+ * @author Giorgio Gross
+ */
+class HTMLDialogViewer {
+    private Context context;
+    private WebView wv_licenses;
+    private ProgressBar pb_licenseLoader;
+    private View layout;
+
+    private String title;
+    private
+    @RawRes
+    int rawRes;
+    private String content;
+
+    /**
+     * Creates and shows a web view displaying the passed html file.
+     *
+     * @param context     application context
+     * @param inflater    a layout inflater
+     * @param title       the title of the dialog
+     * @param rawResource the resource id of the html content
+     */
+    @SuppressLint(&quot;InflateParams&quot;)
+    HTMLDialogViewer(Context context, LayoutInflater inflater, String title,
+<span class="nc" id="L46">                     @RawRes int rawResource) {</span>
+<span class="nc" id="L47">        this.context = context;</span>
+<span class="nc" id="L48">        this.layout = inflater.inflate(R.layout.htmldialog, null); // pass null as we show a dialog</span>
+<span class="nc" id="L49">        this.title = title;</span>
+<span class="nc" id="L50">        this.content = &quot;&quot;;</span>
+<span class="nc" id="L51">        this.rawRes = rawResource;</span>
+<span class="nc" id="L52">    }</span>
+
+    /**
+     * Creates and shows a web view displaying the passed string inside an html file.
+     *
+     * @param context  application context
+     * @param inflater a layout inflater
+     * @param title    the title of the dialog
+     * @param content  the content as a string to be shown
+     */
+<span class="nc" id="L62">    HTMLDialogViewer(Context context, LayoutInflater inflater, String title, String content) {</span>
+<span class="nc" id="L63">        this.context = context;</span>
+<span class="nc" id="L64">        this.layout = inflater.inflate(R.layout.htmldialog, null);</span>
+<span class="nc" id="L65">        this.title = title;</span>
+<span class="nc" id="L66">        this.content = content;</span>
+<span class="nc" id="L67">        this.rawRes = 0;</span>
+<span class="nc" id="L68">    }</span>
+
+    /**
+     * Loads the specified raw resources and shows it in a dialog
+     */
+    void showDialog() {
+<span class="nc" id="L74">        AlertDialog.Builder builder = new AlertDialog.Builder(context);</span>
+
+<span class="nc" id="L76">        wv_licenses = (WebView) layout.findViewById(R.id.wv_licenses);</span>
+<span class="nc" id="L77">        pb_licenseLoader = (ProgressBar) layout.findViewById(R.id.pb_licenseLoader);</span>
+
+<span class="nc" id="L79">        new HTMLFileLoader().execute();</span>
+
+<span class="nc" id="L81">        builder.setTitle(title)</span>
+<span class="nc" id="L82">                .setView(layout)</span>
+<span class="nc" id="L83">                .setPositiveButton(&quot;OK&quot;, new DialogInterface.OnClickListener() {</span>
+                    public void onClick(DialogInterface dialog, int id) {
+<span class="nc" id="L85">                    }</span>
+<span class="nc" id="L86">                }).create().show();</span>
+
+<span class="nc" id="L88">    }</span>
+
+    /**
+     * Async file loader for the html document.
+     */
+<span class="nc" id="L93">    private class HTMLFileLoader extends AsyncTask&lt;Void, Void, Void&gt; {</span>
+        StringBuilder sBuilder;
+
+        @Override
+        protected void onPreExecute() {
+<span class="nc" id="L98">        }</span>
+
+        @Override
+        protected Void doInBackground(Void... params) {
+<span class="nc" id="L102">            sBuilder = new StringBuilder();</span>
+
+<span class="nc bnc" id="L104" title="All 2 branches missed.">            if (rawRes != 0) {</span>
+<span class="nc" id="L105">                InputStream rawResource = context.getResources().openRawResource(rawRes);</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">                if (rawResource != null) {</span>
+<span class="nc" id="L107">                    Scanner scan = new Scanner(rawResource);</span>
+
+<span class="nc bnc" id="L109" title="All 2 branches missed.">                    while (scan.hasNextLine()) {</span>
+<span class="nc" id="L110">                        sBuilder.append(scan.nextLine());</span>
+<span class="nc" id="L111">                        sBuilder.append(&quot;\n&quot;);</span>
+                    }
+                }
+<span class="nc" id="L114">            } else {</span>
+<span class="nc" id="L115">                sBuilder.append(content);</span>
+            }
+
+<span class="nc" id="L118">            return null;</span>
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+<span class="nc bnc" id="L123" title="All 6 branches missed.">            if (wv_licenses != null &amp;&amp; sBuilder != null &amp;&amp; !isCancelled()) {</span>
+<span class="nc" id="L124">                wv_licenses.loadDataWithBaseURL(null, sBuilder.toString(), &quot;text/html&quot;, &quot;utf-8&quot;, null);</span>
+<span class="nc" id="L125">                wv_licenses.getSettings().setUseWideViewPort(true);</span>
+<span class="nc" id="L126">                pb_licenseLoader.setVisibility(View.GONE);</span>
+            }
+<span class="nc" id="L128">        }</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span>Generated by the Android Gradle plugin 2.3.0</div></body></html>

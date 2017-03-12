@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>Metadata.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">de.pcc.privacycrashcam.data</a> &gt; <span class="el_source">Metadata.java</span></div><h1>Metadata.java</h1><pre class="source lang-java linenums">package de.pcc.privacycrashcam.data;
+
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+/**
+ * Data container storing the metadata to the video recording.
+ *
+ * @author David Laubenstein, Giorgio Groß, Josh Romanowski
+ */
+public class Metadata {
+
+    // File pre- and suffixes
+    public static final String PREFIX = &quot;META_&quot;;
+    public static final String PREFIX_READABLE = &quot;META_R_&quot;;
+    public static final String SUFFIX = &quot;json&quot;;
+    // trigger type constants
+    public final static String TRIGGER_TYPE_DEFAULT = &quot;NONE&quot;;
+    public final static String TRIGGER_TYPE_SENSOR = &quot;SENSOR_INPUT&quot;;
+    public final static String TRIGGER_TYPE_TOUCH = &quot;TOUCH_INPUT&quot;;
+<span class="fc" id="L30">    private final static String TAG = Metadata.class.getName();</span>
+    // JSON keys
+    private final static String JSON_KEY_DATE = &quot;date&quot;;
+    private final static String JSON_KEY_TRIGGER_TYPE = &quot;triggerType&quot;;
+    private final static String JSON_KEY_TRIGGER_FORCE_X = &quot;triggerForceX&quot;;
+    private final static String JSON_KEY_TRIGGER_FORCE_Y = &quot;triggerForceY&quot;;
+    private final static String JSON_KEY_TRIGGER_FORCE_Z = &quot;triggerForceZ&quot;;
+
+    /* #############################################################################################
+     *                                  attributes
+     * ###########################################################################################*/
+
+    /**
+     * Date of the video recording trigger.
+     */
+    private long date;
+    /**
+     * How the video recording was triggered.
+     */
+    private String triggerType;
+    /**
+     * G-Force values in the moment the recording is triggered.
+     */
+<span class="pc" id="L53">    private float[] gForce = new float[3];</span>
+
+    /* #############################################################################################
+     *                                  constructor
+     * ###########################################################################################*/
+
+    /**
+     * Default constructor. Will initialize default values.
+     */
+    public Metadata() {
+<span class="fc" id="L63">        this(System.currentTimeMillis(), TRIGGER_TYPE_DEFAULT, new float[]{0, 0, 0});</span>
+<span class="fc" id="L64">    }</span>
+
+    /**
+     * Creates new metadata from given values.
+     *
+     * @param date        Date of the recording.
+     * @param triggerType Trigger type of the recording.
+     * @param gForce      GForce when triggering.
+     */
+<span class="fc" id="L73">    public Metadata(long date, String triggerType, float[] gForce) {</span>
+<span class="fc" id="L74">        this.date = date;</span>
+<span class="fc" id="L75">        this.triggerType = triggerType;</span>
+<span class="fc" id="L76">        this.gForce = gForce;</span>
+<span class="fc" id="L77">    }</span>
+
+    /**
+     * Creates new metadata with values read from a json string.
+     *
+     * @param json JSON string that contains
+     * @throws JSONException
+     */
+<span class="nc" id="L85">    public Metadata(String json) throws JSONException {</span>
+<span class="nc" id="L86">        JSONObject metadata = new JSONObject(json);</span>
+
+        // retrieve json data
+<span class="nc" id="L89">        this.date = metadata.getLong(JSON_KEY_DATE);</span>
+<span class="nc" id="L90">        this.triggerType = metadata.getString(JSON_KEY_TRIGGER_TYPE);</span>
+<span class="nc" id="L91">        this.gForce[0] = (float) metadata.getDouble(JSON_KEY_TRIGGER_FORCE_X);</span>
+<span class="nc" id="L92">        this.gForce[1] = (float) metadata.getDouble(JSON_KEY_TRIGGER_FORCE_Y);</span>
+<span class="nc" id="L93">        this.gForce[2] = (float) metadata.getDouble(JSON_KEY_TRIGGER_FORCE_Z);</span>
+<span class="nc" id="L94">    }</span>
+
+<span class="nc" id="L96">    public Metadata(File metaFile) throws JSONException, IOException {</span>
+        String json;
+        // read file
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (metaFile != null) {</span>
+<span class="nc" id="L100">            InputStream inputStream = new FileInputStream(metaFile);</span>
+<span class="nc" id="L101">            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);</span>
+<span class="nc" id="L102">            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);</span>
+            String ret;
+<span class="nc" id="L104">            StringBuilder stringBuilder = new StringBuilder();</span>
+
+<span class="nc bnc" id="L106" title="All 2 branches missed.">            while ((ret = bufferedReader.readLine()) != null) {</span>
+<span class="nc" id="L107">                stringBuilder.append(ret);</span>
+            }
+
+<span class="nc" id="L110">            inputStream.close();</span>
+<span class="nc" id="L111">            inputStreamReader.close();</span>
+<span class="nc" id="L112">            json = stringBuilder.toString();</span>
+<span class="nc" id="L113">            JSONObject metadata = new JSONObject(json);</span>
+
+            // retrieve json data
+<span class="nc" id="L116">            this.date = metadata.getLong(JSON_KEY_DATE);</span>
+<span class="nc" id="L117">            this.triggerType = metadata.getString(JSON_KEY_TRIGGER_TYPE);</span>
+<span class="nc" id="L118">            this.gForce[0] = (float) metadata.getDouble(JSON_KEY_TRIGGER_FORCE_X);</span>
+<span class="nc" id="L119">            this.gForce[1] = (float) metadata.getDouble(JSON_KEY_TRIGGER_FORCE_Y);</span>
+<span class="nc" id="L120">            this.gForce[2] = (float) metadata.getDouble(JSON_KEY_TRIGGER_FORCE_Z);</span>
+<span class="nc" id="L121">        } else {</span>
+
+            // retrieve json data
+<span class="nc" id="L124">            this.date = System.currentTimeMillis();</span>
+<span class="nc" id="L125">            this.triggerType = TRIGGER_TYPE_DEFAULT;</span>
+<span class="nc" id="L126">            this.gForce[0] = 0F;</span>
+<span class="nc" id="L127">            this.gForce[1] = 0F;</span>
+<span class="nc" id="L128">            this.gForce[2] = 0F;</span>
+        }
+<span class="nc" id="L130">    }</span>
+
+    /* #############################################################################################
+     *                                  getter/ setter
+     * ###########################################################################################*/
+
+    public long getDate() {
+<span class="fc" id="L137">        return date;</span>
+    }
+
+    public String getTriggerType() {
+<span class="nc" id="L141">        return triggerType;</span>
+    }
+
+    public float[] getgForce() {
+<span class="nc" id="L145">        return gForce;</span>
+    }
+
+    /**
+     * returns JSON String of metadata info
+     *
+     * @return json String
+     */
+    public String getAsJSON() {
+<span class="fc" id="L154">        JSONObject json = new JSONObject();</span>
+        try {
+<span class="fc" id="L156">            json.put(JSON_KEY_DATE, this.date);</span>
+<span class="fc" id="L157">            json.put(JSON_KEY_TRIGGER_TYPE, this.triggerType);</span>
+<span class="fc" id="L158">            json.put(JSON_KEY_TRIGGER_FORCE_X, this.gForce[0]);</span>
+<span class="fc" id="L159">            json.put(JSON_KEY_TRIGGER_FORCE_Y, this.gForce[1]);</span>
+<span class="fc" id="L160">            json.put(JSON_KEY_TRIGGER_FORCE_Z, this.gForce[2]);</span>
+<span class="nc" id="L161">        } catch (JSONException e) {</span>
+<span class="nc" id="L162">            Log.w(TAG, &quot;Error creating metadata json&quot;);</span>
+<span class="fc" id="L163">        }</span>
+<span class="fc" id="L164">        return json.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span>Generated by the Android Gradle plugin 2.3.0</div></body></html>
