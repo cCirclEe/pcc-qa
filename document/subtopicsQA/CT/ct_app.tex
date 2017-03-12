@@ -5,41 +5,46 @@
 \hline
   \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
   \hline
-  settingsTest() & settings sind richtig im Speicher abgelegt worden & true \\
+  settingsTest() & speichere fertiges Settings-Objekt mit saveSettings() und lese mit getSettings() aus & identisches Settings-Objekt \\
   \hline
-  accountDataTest() & accountData sind in den Shared Preferences gespeichert& true \\
+  accountDataTest() & speichere fertiges AccountData-Objekt mit saveAccountData() und lese mit getAccountData() aus & identisches AccountData-Objekt \\
   \hline
-  deleteAccount\newline DataTest() & account ist nach dem Auftrag gelöscht & true \\
+  deleteAccount\newline DataTest() & speichere mit saveAccountData() ein AccountData-Objekt und lösche es mit deleteAccountData() & File existiert nicht mehr \\
   \hline
-  getTempVideo\newline FileTest() & rufe Methode auf und prüfe, ob ein das File zurückgegeben wurde & true \\
+  getTempVideo\newline FileTest() & erstelle ein File im tempVideoFile-Directory und rufe getTempVideoFile() auf & File nicht null \\
   \hline
-  getTempMetaData\newline FileTest() & rufe Methode auf und prüfe, ob ein das File zurückgegeben wurde & true \\
+  getTempMetaData\newline FileTest() & erstelle ein File im tempMetaData-Directory und rufe getTempMetaDataFile() auf & true \\
   \hline
-  deleteEncrypted\newline SymmetricKey\newline FileTest() & prüfe, ob der symmetrische Key gelöscht wurde & true \\
+  deleteEncrypted\newline SymmetricKey\newline FileTest() & erstelle ein File im korrekten Pfad und lösche es mit deleteEncryptedSymmetricKeyFile & File existiert nicht mehr \\
   \hline
-  deleteEncrypted\newline MetadataFileTest() & prüfe, ob die verschlüsselten Metadaten als File zurückgegeben werden & true \\
+  deleteEncrypted\newline MetadataFileTest() & erstelle ein File im korrekten Pfad und lösche es mit deleteEncryptedMetadataFile() & File existiert nicht mehr \\
   \hline
-  deleteReadable\newline MetadataTest() & prüfe, ob die lesbaren Metadaten zurückgegeben wurden & true \\
+  deleteReadable\newline MetadataTest() & erstelle ein File im korrekten Pfad und lösche es mit deleteReadableMetadata() & File existiert nicht mehr \\
   \hline
-  deleteEncrypted\newline VideoFileTest() & d & true \\
+  deleteEncrypted\newline VideoFileTest() & erstelle ein File im korrekten Pfad und lösche es mit deleteEncryptedVideoFile() & File existiert nicht mehr \\
   \hline
-  createEncrypted\newline SymmetricKey\newline FileTest() & d & true \\
+  createEncrypted\newline SymmetricKey\newline FileTest() & Erstelle eine Datei im korrekten Pfad & Dateipfad und Name sind korrekt \\
   \hline
-  createEncrypted\newline VideoFileTest() & d & true \\
+  createEncrypted\newline VideoFileTest() & Erstelle eine Datei im korrekten Pfad & Dateipfad und Name sind korrekt \\
   \hline
-  createEncrypted\newline MetaFileTest() & d & true \\
+  createEncrypted\newline MetaFileTest() & Erstelle eine Datei im korrekten Pfad & Dateipfad und Name sind korrekt \\
   \hline
-  createReadable\newline MetadataFileTest() & d & true \\
+  createReadable\newline MetadataFileTest() & Erstelle eine Datei im korrekten Pfad & Dateipfad und Name sind korrekt \\
   \hline
-  getAll\newline VideosTest() & d & ignored \\
+  getAll\newline VideosTest() & Erstelle Beispielvideos und rufe getAllVideos() auf & List enthält alle Videos \\
   \hline
-  getEncrypted\newline Symmetric\newline KeyTest() & d & ignored \\
+  getEncrypted\newline Symmetric\newline KeyTest() & erstelle ein File und hole es mit getEncryptedSymmetricKey() & File ist nicht null \\
   \hline
-  getEncrypted\newline VideoTest() & d & ignored \\
+  getEncrypted\newline VideoTest() & erstelle ein File und hole es mit getEncryptedVideo() & File ist nicht null \\
   \hline
-  getReadable\newline MetadataTest() & d & ignored \\
+  getReadable\newline MetadataTest() & erstelle ein File und hole es mit getReadableMetadata() & File ist nicht null \\
+  \hline
   \caption{MemoryManagerTest}
  \end{longtable}
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                    AuthenticateTaskTest			  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
  
 \begin{longtable}{p{.23\textwidth} | p{.55\textwidth} | p{.12\textwidth}}
 \hline
@@ -61,7 +66,9 @@
   \caption{AuthenticateTaskTest}
  \end{longtable}
  
- 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                    VideoUploadTaskTest               %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{longtable}{p{.23\textwidth} | p{.55\textwidth} | p{.12\textwidth}}
 \hline
   \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
