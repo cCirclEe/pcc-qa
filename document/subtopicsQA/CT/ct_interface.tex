@@ -1,35 +1,40 @@
 \subsubsection{Automatisierte Tests}
- \begin{longtable}{p{.35\textwidth} | p{.55\textwidth} | p{.10\textwidth}}
+ \begin{longtable}{p{.23\textwidth} | p{.55\textwidth} | p{.12\textwidth}}
 \hline
   \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
   \hline
-  createAccountTest() & Ruft die Methode createAccount() einmal mit falschem Passwort und einmal mit falscher Mail auf& false\\
+  createAccount-\newline
+  Test() & Ruft die Methode createAccount() einmal mit falschem Passwort und einmal mit falscher Mail auf& false\\
   \hline
-  changeAccountTest() & Ruft die Methode changeAccount() mit leerer Eingabe, falschem Passwort und ungültiger Mail auf & false\\
+  changeAccount-\newline
+  Test() & Ruft die Methode changeAccount() mit leerer Eingabe, falschem Passwort und ungültiger Mail auf & false\\
   \hline
   \caption{AccountDataManagerTest}
  \end{longtable}
  
-  \begin{longtable}{p{.35\textwidth} | p{.55\textwidth} | p{.10\textwidth}}
+  \begin{longtable}{p{.23\textwidth} | p{.55\textwidth} | p{.12\textwidth}}
 \hline
   \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
   \hline
-  getVideosTest() & Ruft getVideos() auf, wobei der Serveraufruf gemockt wurde. Am Ende werden die Ergebnisse mit korrekten verglichen & true\\
+  getVideosTest() & Ruft getVideos() auf, wobei der Serveraufruf gemockt wurde. & Liste mit korrekten Einträgen\\
   \hline
-  createDownloadResource Test() & Ruft die Methode ceateDownloadResource() auf, wobei der Serveraufruf gemockt wurde. Es wird geprüft ob die Resource dann nicht Null ist & ture\\
+  createDownload-\newline
+  ResourceTest() & Ruft die Methode ceateDownloadResource() auf, wobei der Serveraufruf gemockt wurde. & nicht leere Ressource\\
   \hline
   \caption{VideoDataManagerTest}
  \end{longtable}
  
-   \begin{longtable}{p{.35\textwidth} | p{.55\textwidth} | p{.10\textwidth}}
+   \begin{longtable}{p{.23\textwidth} | p{.55\textwidth} | p{.12\textwidth}}
 \hline
   \textbf{Methode} & \textbf{Test} & \textbf{Ergebnis}\\
   \hline
-  isVailidMailTest() & Ruft die Methode isValidMail() mit einer gültigen Mail Adresse auf & true\\
+  isVailidMailTest() & Ruft die Methode isValidMail() mit einer gültigen Mail-Adresse auf & true\\
   \hline
-  isVaildMailFailTest() & Ruft die Methode isVaildMail() mit einer ungültigen Mail Adresse auf & false\\
+  isVaildMail-\newline
+  FailTest() & Ruft die Methode isVaildMail() mit einer ungültigen Mail-Adresse auf & false\\
   \hline
-  sendMailTest() & Ruft die Methode sendMail() mit ungültiger Mail Adressse aus & EmailException\\
+  sendMailTest() & Ruft die Methode sendMail() mit ungültiger Mail-Adressse aus & Email-\newline
+  Exception\\
   \hline
   \caption{MailServiceTest}
  \end{longtable}
@@ -37,27 +42,27 @@
  
 \subsubsection{Manuelle Tests}
 
-\begin{longtable}{p{.45\textwidth} | p{.45\textwidth}}
+\begin{longtable}{p{.50\textwidth} | p{.50\textwidth}}
 \hline
 \textbf{Aktion} & \textbf{Reaktion}\\
 \hline
 Die Seite wird im Browser geöffnet & Es öffnet sich die Login Ansicht\\
 \hline
-Drücken des Login Buttons ohne/mit ungültiger Eingabe & Ein Popup zeigt einen Fehler an\\
+Drücken des Login Buttons mit leerer/mit ungültiger Eingabe & Ein Popup zeigt einen Fehler an\\
 \hline
-Drücken des Registrieren Buttons ohne/mit ungültiger Eingabe& Ein Popup zeigt einen Fehler an\\
+Drücken des Registrieren Buttons mit leerer/mit ungültiger Eingabe& Ein Popup zeigt einen Fehler an\\
 \hline
-Drücken den Registrieren Buttons mit korrekter Eingabe & Ein Popup informiert, den erstellten Account zu verifizieren mittels der gesendeten Mail\\
+Drücken den Registrieren Buttons mit korrekter Eingabe & Ein Popup informiert, den erstellten Account mittels der gesendeten Mail zu verifizieren\\
 \hline  
-Drücken des Login Buttons ohne klicken des Links in der Mail & Ein Popup zeigt einen Fehler an\\
+Drücken des Login Buttons vor dem Verifizieren & Ein Popup zeigt einen Fehler an\\
 \hline  
 Drücken des Links in der Mail & Eine Seite im Browser teilt erfolgreiche Verifizierung mit\\
 \hline
-Drücken des Login Buttons nach verifizieren des Accounts & Der Benutzer wird angemeldet und die Video Ansicht wird angezeigt\\
+Drücken des Login Buttons nach Verifizieren des Accounts & Der Benutzer wird angemeldet und die Video Ansicht wird angezeigt\\
 \hline
-Drücken des Download Buttons & Es wird ein Dialog geöffnet zum Downloaden der Datei, nach bestätigen wird die Datei heruntergeladen\\
+Drücken des Download Buttons & Es wird ein Dialog zum Downloaden der Datei geöffnet, nach Bestätigen wird die Datei heruntergeladen\\
 \hline
-Drücken des Info Buttons & Es wird ein Popup geöffnet welches die Meta Informationen anzeigt\\
+Drücken des Info Buttons & Es wird ein Popup geöffnet, das die Meta Informationen anzeigt\\
 \hline
 Drücken des Delete Buttons & Ein Popup zeigt an, dass das Video gelöscht wurde\\
 \hline
@@ -67,13 +72,13 @@ Drücken des Impressum Menüeintrags & Das PCC Impressum wird angezeigt\\
 \hline
 Drücken des Account Ansicht Menüeintrags & Die Account Ansicht wird angezeigt\\
 \hline
-Drücken des ändern Buttons ohne Eingabe & Ein Popup zeigt einen Fehler an\\
+Drücken des Ändern Buttons ohne Eingabe & Ein Popup zeigt einen Fehler an\\
 \hline
-Drücken des ändern Buttons mit falschen Eingaben & Ein Popup zeigt einen Fehler\\
+Drücken des Ändern Buttons mit falschen Eingaben & Ein Popup zeigt einen Fehler an\\
 \hline
-Drücken des ändern Buttons mit korrekten Eingaben & Ein Popup bestätigt die Änderung und anschließend wird die Login Ansicht angezeigt\\
+Drücken des Ändern Buttons mit korrekten Eingaben & Ein Popup bestätigt die Änderung und anschließend wird die Login Ansicht angezeigt\\
 \hline
-Drücken des löschen Buttons & Ein Popup bestätigt, dass der Account gelöscht wurde und die Login Ansicht wird angezeigt\\
+Drücken des Löschen Buttons & Ein Popup bestätigt, dass der Account gelöscht wurde und die Login Ansicht wird angezeigt\\
 \hline
 Drücken des Logout Menüeintrags & Die Login Ansicht wird angezeigt\\
 \hline
